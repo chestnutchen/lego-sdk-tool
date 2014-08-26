@@ -1,0 +1,114 @@
+.sdk-tool-mask {
+    width: 100%;
+    height: 500px;    
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #eee;
+    opacity: 0.7;
+}
+
+.sdk-tool-waiting {
+    width: 100%;
+    height: 300px;
+    background: url(../images/wait.gif) center center no-repeat scroll transparent;
+}
+
+.sdk-tool-container {
+    width: 500px;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    font-size: 12px;
+}
+
+.sdk-not-found {
+    width: 100%;
+    padding: 140px 0;
+    text-align: center;
+    color: #999; 
+    font-size: 20px;
+    display: none;
+    box-shadow: 0 0 80px rgba(128, 128, 128, 0.5) inset;
+}
+
+.sdk-tool-container fieldset {
+    border: none;
+    border-top: 1px dashed #bbb;
+}
+
+.sdk-editor-fieldset-first {
+    margin-bottom: 15px;
+}
+
+.sdk-tool-container legend {
+    color: #000;
+    font-weight: bold;
+}
+
+.sdk-editor-get-value p span,
+.sdk-editor-set-value p span {
+    color: #666;
+}
+
+.sdk-get-value-copy {
+    float: right;
+    margin-top: -5px;
+    text-decoration: underline;
+    color: blue;
+    background-color: #fff;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.sdk-get-value-copy:active {
+    color: red;
+}
+
+.sdk-get-value {
+    width: 480px;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: auto;
+    background-color: #eee;
+}
+
+.sdk-raw-value {
+    position: absolute;
+    top:-999px;
+    left:-999px;
+}
+
+.sdk-set-value {
+    width: 455px;
+    height: 50px;
+    resize: none;
+}
+
+.set-sdk-value-btn {
+    height: 23px;
+    width: 90px;
+    line-height: 21px;
+    padding: 0 10px;
+    margin-top: 8px;
+    font-size: 12px;
+    text-align: center;
+    vertical-align: top;
+    overflow: hidden;
+    border: 1px solid #418ada;
+    border-radius: 2px 2px 2px 2px;
+    color: white;
+    background-color: #61a6f5;
+    background: -webkit-linear-gradient(top, #61a6f5, #4090ec);
+    cursor: pointer;
+    outline: none;
+}
+
+.set-sdk-value-btn:hover {
+    border: 1px solid #3467b7;
+}
+
+.set-sdk-value-btn:active {
+    background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
+}

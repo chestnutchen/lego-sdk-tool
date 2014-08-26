@@ -1,0 +1,32 @@
+{
+    "name": "SDK TOOL",
+    "version": "0.1.0",
+    "icons": {
+        "128": "images/icon.png"
+    },
+    "permissions": [
+        "tabs",
+        "activeTab"
+    ],
+    "background": {
+        "scripts": ["js/bg.js"],
+        "persistent": false
+    },
+    "options_page": "options.html",
+    "content_scripts": [{
+        "matches": [
+            "http://*.baidu.com/*"
+        ],
+        "js": [
+            "js/contentscript.js",
+            "js/runtime.js"
+        ]
+    }],
+    "page_action": {
+        "default_icon": "images/icon19.png",
+        "default_title": "SDK TOOL",
+        "default_popup": "tool.html"
+    },
+    "web_accessible_resources": ["js/runtime.js"],
+    "manifest_version": 2
+}

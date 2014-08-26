@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SDK BACKGROUND</title>
+    <style type="text/css">
+        body {
+            margin-left: 20px;
+        }
+        textarea {
+            width: 530px;
+            height: 150px;
+            line-height: 20px;
+            padding: 5px 10px;
+            border: 1px solid #666;
+            box-shadow: inset 0 0 3px 0 #ccc;
+            outline: none;
+            resize: none;
+        }
+        button {
+            height: 23px;
+            width: 60px;
+            line-height: 21px;
+            padding: 0 10px;
+            margin-top: 12px;
+            font-size: 12px;
+            text-align: center;
+            vertical-align: top;
+            overflow: hidden;
+            border: 1px solid #418ada;
+            border-radius: 2px 2px 2px 2px;
+            color: white;
+            background-color: #61a6f5;
+            background: -webkit-linear-gradient(top, #61a6f5, #4090ec);
+            cursor: pointer;
+            outline: none;
+        }
+        button:hover {
+            border: 1px solid #3467b7;
+        }
+        button:active {
+            background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
+        }
+    </style>
+    <script src="js/jquery.js"></script>
+    <script src="js/options.js"></script>
+</head>
+<body>
+    <h2>LEGO SDK TOOL CONFIG</h2>
+    <p>设置插件有权限的url，逗号分隔，支持换行，支持字符串部分匹配和正则匹配（暂时全集为*.baidu.com）</p>
+    <div>
+        <textarea id="sdkPermission" placeholder="/http:\/\/.*\.baidu\.com/, http://www.baidu.com"></textarea>
+    </div>
+    <div>
+        <button id="sdkPermissionSave">保存</button>
+    </div>
+    <p>意见反馈：<a href="mailto:chenli11@baidu.com?subject=【意见反馈】LEGO-SDK-TOOL">chenli11@baidu.com</a></p>
+</body>
+</html>
