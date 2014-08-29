@@ -1,0 +1,93 @@
+* {
+    -webkit-font-smoothing: antialiased;
+}
+
+html,
+body,
+header {
+    padding: 0;
+    margin: 0;
+}
+
+h2 {
+    padding: 10px;
+    margin: 10px 0 20px 0;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+    box-shadow: 0 0 3px 0 #ccc;
+    background-color: #eee;
+}
+
+.github {
+    float: right;
+    margin-top: 4px;
+    font-size: 16px;
+    color: #0078ff;
+    text-decoration: none;
+}
+
+.github:visited {
+    color: #0078ff;
+}
+
+.githubPic {
+    float: right;
+    width: 25px;
+    margin: -5px 0 0 5px;
+    vertical-align: middle;
+}
+
+.check:visited {
+    color: blue;
+}
+
+p {
+    line-height: 20px;
+}
+
+.pic {
+    border: 1px solid #ccc;
+    display: none;
+}
+
+article {
+    margin-left: 20px;
+}
+
+textarea {
+    width: 530px;
+    height: 150px;
+    line-height: 20px;
+    padding: 5px 10px;
+    border: 1px solid #666;
+    box-shadow: inset 0 0 3px 0 #ccc;
+    outline: none;
+    resize: none;
+}
+
+button {
+    height: 23px;
+    width: 60px;
+    line-height: 21px;
+    padding: 0 10px;
+    margin-top: 12px;
+    font-size: 12px;
+    text-align: center;
+    vertical-align: top;
+    overflow: hidden;
+    border: 1px solid #418ada;
+    border-radius: 2px 2px 2px 2px;
+    color: white;
+    background-color: #61a6f5;
+    background: -webkit-linear-gradient(top, #61a6f5, #4090ec);
+    cursor: pointer;
+    outline: none;
+}
+
+button:hover {
+    border: 1px solid #3467b7;
+}
+
+button:active {
+    background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
+}

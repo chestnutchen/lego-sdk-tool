@@ -19,7 +19,26 @@ if (!chrome.extension) {
         }
         else if (e.data && e.data.SET_SDK_VALUE_ON_PAGE && e.data.SDK_NAME && e.data.value) {
             var name = e.data.SDK_NAME;
-            window.ECOM_MA_LEGO.instances[name].setValue(JSON.parse(e.data.value));
+            if (window.ECOM_MA_LEGO && window.ECOM_MA_LEGO.instances) {
+                try {
+                    window.ECOM_MA_LEGO.instances[name].setValue(JSON.parse(e.data.value));
+                    window.postMessage({
+                        RECEIVE_SET_SUCCESS_ON_PAGE: true
+                    }, '*');
+                }
+                catch (err) {
+                    window.postMessage({
+                        RECEIVE_ERROR_ON_PAGE: true,
+                        message: err.message
+                    }, '*');
+                }
+            }
+            else {
+                window.postMessage({
+                    RECEIVE_ERROR_ON_PAGE: true,
+                    message: '当前页面sdk对象已被移除 :-('
+                }, '*');
+            }
         }
     });
 }

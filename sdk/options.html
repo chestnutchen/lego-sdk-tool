@@ -2,58 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SDK BACKGROUND</title>
-    <style type="text/css">
-        body {
-            margin-left: 20px;
-        }
-        textarea {
-            width: 530px;
-            height: 150px;
-            line-height: 20px;
-            padding: 5px 10px;
-            border: 1px solid #666;
-            box-shadow: inset 0 0 3px 0 #ccc;
-            outline: none;
-            resize: none;
-        }
-        button {
-            height: 23px;
-            width: 60px;
-            line-height: 21px;
-            padding: 0 10px;
-            margin-top: 12px;
-            font-size: 12px;
-            text-align: center;
-            vertical-align: top;
-            overflow: hidden;
-            border: 1px solid #418ada;
-            border-radius: 2px 2px 2px 2px;
-            color: white;
-            background-color: #61a6f5;
-            background: -webkit-linear-gradient(top, #61a6f5, #4090ec);
-            cursor: pointer;
-            outline: none;
-        }
-        button:hover {
-            border: 1px solid #3467b7;
-        }
-        button:active {
-            background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
-        }
-    </style>
+    <title>SDK选项</title>
+    <link rel="stylesheet" href="css/options.css">
     <script src="js/jquery.js"></script>
     <script src="js/options.js"></script>
 </head>
 <body>
-    <h2>LEGO SDK TOOL CONFIG</h2>
-    <p>设置插件有权限的url，逗号分隔，支持换行，支持字符串部分匹配和正则匹配（暂时全集为*.baidu.com）</p>
-    <div>
-        <textarea id="sdkPermission" placeholder="/http:\/\/.*\.baidu\.com/, http://www.baidu.com"></textarea>
-    </div>
-    <div>
-        <button id="sdkPermissionSave">保存</button>
-    </div>
-    <p>意见反馈：<a href="mailto:chenli11@baidu.com?subject=【意见反馈】LEGO-SDK-TOOL">chenli11@baidu.com</a></p>
+    <header>
+        <h2>LEGO SDK TOOL CONFIG<a target="_blank" class="github" href="https://github.com/chestnutchen/legoSdkTool"><img class="githubPic" src="images/github.png">View On Github</a></h2>
+    </header>
+    <article>
+        <h3>1. 插件使用</h3>
+        <p>普通用户解读：可以把页面表单中的物料内容复制出来，也可以将物料内容设置到页面表单中去，不需要在页面上一个个输入框填写。适用于素材库做物料、锦囊做物料、实验平台做物料、各种奇葩业务端对接了素材库做物料，如果没看懂，咨询一下神奇的fe们&nbsp;&nbsp;<a href="###" id="check" class="check">或者查看图解</a></p>
+        <img class="pic" id="pic" src="images/illustration.png">
+        <p>资深用户解读：可以复制sdk输出的JSON数据，也可以把JSON设置到sdk表单中去，偷懒必备</p>
+        <h3>2. 插件配置</h3>
+        <p>设置插件有权限的url，逗号分隔，支持换行，支持字符串部分匹配和正则匹配（暂时全集为*.baidu.com）</p>
+        <div>
+            <textarea id="sdkPermission" placeholder="/http:\/\/.*\.baidu\.com/, http://www.baidu.com"></textarea>
+        </div>
+        <div>
+            <button id="sdkPermissionSave">保存</button>
+        </div>
+        <p>意见反馈：<a href="mailto:chenli11@baidu.com?subject=【意见反馈】LEGO-SDK-TOOL">chenli11@baidu.com</a></p>
+    </article>
 </body>
 </html>

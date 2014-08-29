@@ -33,6 +33,17 @@ window.addEventListener('message', function (e) {
         var ECOM_MA_LEGO = e.data.ECOM_MA_LEGO;
         chrome.runtime.sendMessage({ RECEIVE_SDK_OBJECT: true, ECOM_MA_LEGO: ECOM_MA_LEGO });
     }
+    else if (e.data.RECEIVE_ERROR_ON_PAGE) {
+        chrome.runtime.sendMessage({
+            RECEIVE_ERROR: true,
+            message: e.data.message
+        });
+    }
+    else if (e.data.RECEIVE_SET_SUCCESS_ON_PAGE) {
+        chrome.runtime.sendMessage({
+            RECEIVE_SET_SUCCESS: true
+        });
+    }
 });
 
 chrome.runtime.onMessage.addListener(function(request) {

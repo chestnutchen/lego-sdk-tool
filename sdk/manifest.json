@@ -1,6 +1,6 @@
 {
     "name": "SDK TOOL",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "icons": {
         "128": "images/icon.png"
     },
@@ -28,5 +28,6 @@
         "default_popup": "tool.html"
     },
     "web_accessible_resources": ["js/runtime.js"],
+    "update_url": "https://github.com/chestnutchen/legoSdkTool/blob/master/updates.xml",
     "manifest_version": 2
 }
