@@ -28,6 +28,6 @@
         "default_popup": "tool.html"
     },
     "web_accessible_resources": ["js/runtime.js"],
-    "update_url": "https://github.com/chestnutchen/legoSdkTool/blob/master/updates.xml",
+    "update_url": "https://github.com/chestnutchen/legoSdkTool/raw/master/updates.xml",
     "manifest_version": 2
 }
