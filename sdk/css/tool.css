@@ -42,6 +42,7 @@ body {
     min-height: 300px;
     max-height: 520px;
     overflow-y: auto;
+    overflow-x: hidden;
     font-size: 12px;
 }
 
@@ -53,7 +54,7 @@ body {
     width: 100%;
     padding: 140px 0;
     text-align: center;
-    color: #999; 
+    color: #999;
     font-size: 20px;
     display: none;
     box-shadow: 0 0 80px rgba(128, 128, 128, 0.5) inset;
@@ -65,8 +66,12 @@ body {
     border-top: 1px dashed #bbb;
 }
 
-.sdk-editor-fieldset-first {
-    margin-bottom: 15px;
+.sdk-editor-fieldset {
+    margin-bottom: 20px;
+}
+
+.sdk-editor-fieldset-last {
+    margin-bottom: 0;
 }
 
 .sdk-tool-container legend {

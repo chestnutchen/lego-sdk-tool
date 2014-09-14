@@ -5,11 +5,15 @@
         "128": "images/icon.png"
     },
     "permissions": [
+        "<all_urls>",
         "tabs",
         "activeTab"
     ],
     "background": {
-        "scripts": ["js/bg.js"],
+        "scripts": [
+            "js/jquery.js",
+            "js/bg.js"
+        ],
         "persistent": false
     },
     "options_page": "options.html",
@@ -18,8 +22,8 @@
             "http://*.baidu.com/*"
         ],
         "js": [
-            "js/contentscript.js",
-            "js/runtime.js"
+            "js/jquery.js",
+            "js/contentscript.js"
         ]
     }],
     "page_action": {
@@ -27,7 +31,10 @@
         "default_title": "SDK TOOL",
         "default_popup": "tool.html"
     },
-    "web_accessible_resources": ["js/runtime.js"],
+    "web_accessible_resources": [
+        "js/runtime.js",
+        "js/message.json"
+    ],
     "update_url": "https://github.com/chestnutchen/legoSdkTool/raw/master/updates.xml",
     "manifest_version": 2
 }

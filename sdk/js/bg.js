@@ -1,5 +1,5 @@
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-    if (request.GET_SDK_PERMISSION) {
+    if (request.GET_SDK_PERMISSION_RULES) {
         if (!window.localStorage.getItem('legoSdkToolPermission')) {
             window.localStorage.setItem('legoSdkToolPermission', '/http:\\/\\/.*\\.baidu\\.com/');
         }

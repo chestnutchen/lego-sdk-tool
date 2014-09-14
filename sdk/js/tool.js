@@ -62,6 +62,9 @@ var Helper = {
         };
     })(),
 
+    parseError: function (errMsg) {
+    },
+
     sendMessage: function (data, callback) {
         chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
             chrome.tabs.sendMessage(tabs[0].id, data, callback || function () {});
@@ -98,26 +101,27 @@ var Popup = (function () {
     };
 
     this.init = function (ECOM_MA_LEGO) {
+        console.log(ECOM_MA_LEGO);
         if (ECOM_MA_LEGO && ECOM_MA_LEGO.length) {
             Helper.waiting(true);
             $.get(chrome.extension.getURL('../template.html'), function (data) {
                 var template = data;
                 var tmpl = '';
-                if (ECOM_MA_LEGO.length < 2) {
-                    template = template.replace(/%sdk\-editor\-fieldset\-first%/, '');
-                }
                 $.each(ECOM_MA_LEGO, function (index, editor) {
                     var temp = template.replace(/%editorValue%/g, JSON.stringify(editor.value, null, 4));
                     temp = temp.replace(/%legend%/, editor.templateName);
                     temp = temp.replace(/%index%/g, index);
-                    if (ECOM_MA_LEGO.length > 1 && index === 0) {
-                        temp = temp.replace(/%sdk\-editor\-fieldset\-first%/, ' sdk-editor-fieldset-first');
+                    if (index === ECOM_MA_LEGO.length - 1) {
+                        temp = temp.replace(/%sdk\-editor\-fieldset\-last%/, ' sdk-editor-fieldset-last');
+                    }
+                    else {
+                        temp = temp.replace(/%sdk\-editor\-fieldset\-last%/, '');
                     }
                     tmpl += temp;
                 });
                 $('#sdk-tool-main').html(tmpl);
                 $('.sdk-get-value').each(function (index, elem) {
-                    if (elem.scrollHeight > 300) {
+                    if ($('#sdk-tool-main')[0].scrollHeight > 520 || elem.scrollHeight > 300) {
                         elem.style.width = '480px';
                     }
                 });
@@ -160,6 +164,7 @@ $(function() {
             Helper.showTip('设置成功!');
         }
     });
+    console.log('sendGet');
     Helper.sendMessage({ GET_SDK_OBJECT: true }, function (response) {
         if (response && response.RECEIVE_SDK_OBJECT && response.ECOM_MA_LEGO) {
             Popup.init(response.ECOM_MA_LEGO);
