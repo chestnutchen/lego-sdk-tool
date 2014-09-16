@@ -26,47 +26,70 @@ var Helper = {
 
     showTip: (function () {
         var showing = false;
-        var queue = [];
-
-        function hideTip(queue) {
-            return function () {
-                if (!queue.length) {
-                    $('#tips').hide();
-                    showing = false;
-                }
-            };
-        }
+        var lastTip = {};
+        var consecutive = 0;
+        var cumulativeTime = 0;
+        var forwardStartTime = 0;
+        var forwardHide = null;
 
         function setColor(isErr) {
             if (isErr) {
-               $('#tips').css('color', '');
-               $('#tips').css('background-color', '');
+               $('#tips').css('color', Helper.colors.invalid);
+               $('#tips').css('background-color', Helper.colors.warning);
             }
             else {
-               $('#tips').css('color', '');
-               $('#tips').css('background-color', '');
+               $('#tips').css('color', Helper.colors.valid);
+               $('#tips').css('background-color', Helper.colors.good);
             }
         }
 
+        function hideTip() {
+            $('#tips').hide();
+            consecutive = 0;
+            cumulativeTime = 0;
+            showing = false;
+        }
+
+        function showTip(tips, isErr, delayForHideAfterShow) {
+            showing = true;
+            lastTip = {
+                tips: tips,
+                isErr: isErr
+            };
+            $('#tips').text(tips).show();
+            setColor(isErr);
+            forwardStartTime = (new Date()).getTime();
+            forwardHide = setTimeout(
+                function () {
+                    hideTip();
+                },
+                delayForHideAfterShow
+            );
+        }
+
         return function (tips, isErr) {
+            if (consecutive > 3) {
+                return;
+            }
+
             if (!showing) {
-                $('#tips').text(tips).show();
-                setColor(isErr);
-                showing = true;
-                setTimeout(hideTip(queue), 2000);
+                showTip(tips, isErr, 1500);
             }
             else {
-                queue.push(tips);
-                setTimeout(function () {
-                    $('#tips').text(queue.shift()).show();
-                    setColor(isErr);
-                    if (!queue.length) {
-                        setTimeout(hideTip(queue), 1500);
-                    }
-                    else {
-                        setTimeout(hideTip(queue), 500);
-                    }
-                }, 2000);
+                var now = (new Date()).getTime();
+                var displayedTime = now - forwardStartTime;
+                var delayForHideAfterShow = 1500;
+                clearTimeout(forwardHide);
+                if (lastTip.tips === tips) {
+                    consecutive++;
+                    cumulativeTime += displayedTime;
+                    delayForHideAfterShow = (2000 - cumulativeTime > 500) ? 2000 - cumulativeTime : 500;
+                }
+                else {
+                    consecutive = 0;
+                    cumulativeTime = 0;
+                }
+                showTip(tips, isErr, delayForHideAfterShow);
             }
         };
     })(),
@@ -85,27 +108,36 @@ Helper.waiting(true);
 
 function sdkPopup() {
     var bindEvents = function (ECOM_MA_LEGO) {
-        $('#sdk-tool-main').undelegate('.set-sdk-value-btn, .sdk-get-value-copy', 'click');
-        $('#sdk-tool-main').delegate('.set-sdk-value-btn, .sdk-get-value-copy', 'click', function (e) {
-            var button = $(e.currentTarget);
-            var index = button.attr('index');
-            if (button.hasClass('set-sdk-value-btn')) {
-                if (!$('.sdk-set-value:eq(' + index + ')').val()) {
-                    Helper.showTip('亲忘了填数据...', true);
-                    return;
+        $('#sdk-tool-main').undelegate('.set-sdk-value-btn, .sdk-copy-get-value', 'click');
+        $('#sdk-tool-main').delegate(
+            '.sdk-set-value-btn, .sdk-copy-get-value, .sdk-toggle-get-value, .sdk-paste-value',
+            'click',
+            function (e) {
+                var button = $(e.currentTarget);
+                var index = button.attr('index');
+                if (button.hasClass('sdk-set-value-btn')) {
+                    if (!$('.sdk-set-value:eq(' + index + ')').val()) {
+                        Helper.showTip('亲忘了填数据...', true);
+                        return;
+                    }
+                    Helper.sendMessage({
+                        code: MESSAGE.SET_SDK_VALUE,
+                        name: ECOM_MA_LEGO[index].id,
+                        value: $('.sdk-set-value:eq(' + index + ')').val()
+                    });
                 }
-                Helper.sendMessage({
-                    code: MESSAGE.SET_SDK_VALUE,
-                    name: ECOM_MA_LEGO[index].id,
-                    value: $('.sdk-set-value:eq(' + index + ')').val()
-                });
+                else if (button.hasClass('sdk-copy-get-value')) {
+                    $('.sdk-raw-value:eq(' + index +')').select();
+                    document.execCommand('copy');
+                    Helper.showTip('复制成功!');
+                }
+                else if (button.hasClass('sdk-paste-value')) {
+                    $('.sdk-set-value:eq(' + index +')').select();
+                    document.execCommand('paste');
+                    Helper.showTip('粘贴成功!');
+                }
             }
-            else if (button.hasClass('sdk-get-value-copy')) {
-                $('.sdk-raw-value:eq(' + index +')').select();
-                document.execCommand('copy');
-                Helper.showTip('复制成功!');
-            }
-        });
+        );
         Helper.waiting(false);
     };
 

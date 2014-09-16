@@ -7,7 +7,9 @@
     "permissions": [
         "<all_urls>",
         "tabs",
-        "activeTab"
+        "activeTab",
+        "clipboardRead",
+        "clipboardWrite"
     ],
     "background": {
         "scripts": [

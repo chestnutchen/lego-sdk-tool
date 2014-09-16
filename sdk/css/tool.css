@@ -6,7 +6,7 @@ body {
     margin: 10px;
 }
 
-.sdk-link-btn {
+.link-btn {
     border: none;
     padding: 2px;
     background: #fff;
@@ -16,11 +16,11 @@ body {
     outline: none;
 }
 
-.sdk-link-btn:active {
+.link-btn:active {
     color: #EE7600;
 }
 
-.sdk-ocean-btn {
+.ocean-btn {
     text-align: center;
     vertical-align: top;
     overflow: hidden;
@@ -33,12 +33,16 @@ body {
     outline: none;
 }
 
-.sdk-ocean-btn:hover {
+.ocean-btn:hover {
     border: 1px solid #3467b7;
 }
 
-.sdk-ocean-btn:active {
+.ocean-btn:active {
     background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
+}
+
+.clearfix {
+    clear: both;
 }
 
 .sdk-tool-mask {
@@ -109,11 +113,11 @@ body {
     border-top: 1px dashed #bbb;
 }
 
-.sdk-editor-fieldset {
+.sdk-fieldset {
     margin-bottom: 20px;
 }
 
-.sdk-editor-fieldset-last {
+.sdk-fieldset-last {
     margin-bottom: 0;
 }
 
@@ -129,7 +133,7 @@ body {
     padding: 0;
 }
 
-.sdk-editor-set-value p {
+.sdk-set-value-block p {
     display: inline-block;
     line-height: 25px;
     height: 25px;
@@ -137,7 +141,7 @@ body {
     margin-bottom: 8px;
 }
 
-.sdk-get-value-copy,
+.sdk-copy-get-value,
 .sdk-toggle-get-value {
     float: right;
     padding: 0;
@@ -151,7 +155,7 @@ body {
     background-color: #eee;
 }
 
-.sdk-editor-random-value {
+.sdk-random-value {
     float: right;
 }
 
@@ -169,7 +173,7 @@ body {
     resize: none;
 }
 
-.set-sdk-value-btn {
+.sdk-set-value-btn {
     height: 23px;
     width: 110px;
     line-height: 21px;

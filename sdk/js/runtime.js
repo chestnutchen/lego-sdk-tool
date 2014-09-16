@@ -56,7 +56,7 @@ window.addEventListener('message', function (e) {
                         try {
                             window.ECOM_MA_LEGO.instances[name].setValue(JSON.parse(e.data.value));
                             window.postMessage({
-                                RECEIVE_SET_SUCCESS_ON_PAGE: true
+                                code: LEGOSDKTOOLMESSAGE.RECEIVE_SET_SUCCESS_ON_PAGE
                             }, '*');
                         }
                         catch (err) {

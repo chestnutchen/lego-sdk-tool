@@ -80,7 +80,7 @@ function bindEvents() {
                 case MESSAGE.RECEIVE_ERROR_ON_PAGE:
                     // 页面sdk操作失败消息处理
                     chrome.runtime.sendMessage({
-                        RECEIVE_ERROR: true,
+                        code: MESSAGE.RECEIVE_ERROR,
                         message: e.data.message
                     });
                     break;
@@ -88,7 +88,7 @@ function bindEvents() {
                 case MESSAGE.RECEIVE_SET_SUCCESS_ON_PAGE:
                     // 页面sdk操作成功消息处理
                     chrome.runtime.sendMessage({
-                        RECEIVE_SET_SUCCESS: true
+                        code: MESSAGE.RECEIVE_SET_SUCCESS
                     });
                     break;
 
