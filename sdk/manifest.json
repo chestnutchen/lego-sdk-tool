@@ -13,7 +13,7 @@
     ],
     "background": {
         "scripts": [
-            "js/jquery.js",
+            "lib/jquery.js",
             "js/bg.js"
         ],
         "persistent": false
@@ -24,7 +24,7 @@
             "http://*.baidu.com/*"
         ],
         "js": [
-            "js/jquery.js",
+            "lib/jquery.js",
             "js/contentscript.js"
         ]
     }],

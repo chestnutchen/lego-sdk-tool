@@ -148,11 +148,26 @@ body {
     margin: -3px 3px 0 8px;
 }
 
+.sdk-get-value-arrow,
+.sdk-get-value,
+.sdk-set-value {
+    -webkit-transition: all .5s;
+}
+
+.sdk-fieldset-toggle .sdk-get-value-arrow {
+    display: inline-block;
+    -webkit-transform: rotate(-90deg);
+}
+
 .sdk-get-value {
     max-height: 300px;
     overflow-y: auto;
     overflow-x: auto;
     background-color: #eee;
+}
+
+.sdk-fieldset-toggle .sdk-get-value {
+    max-height: 50px;
 }
 
 .sdk-random-value {
@@ -171,6 +186,10 @@ body {
     padding: 0;
     margin: 0;
     resize: none;
+}
+
+.sdk-fieldset-toggle .sdk-set-value {
+    height: 300px;
 }
 
 .sdk-set-value-btn {

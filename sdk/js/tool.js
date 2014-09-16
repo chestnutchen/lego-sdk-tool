@@ -108,10 +108,13 @@ Helper.waiting(true);
 
 function sdkPopup() {
     var bindEvents = function (ECOM_MA_LEGO) {
-        $('#sdk-tool-main').undelegate('.set-sdk-value-btn, .sdk-copy-get-value', 'click');
-        $('#sdk-tool-main').delegate(
-            '.sdk-set-value-btn, .sdk-copy-get-value, .sdk-toggle-get-value, .sdk-paste-value',
+        $('#sdk-tool-main').off(
             'click',
+            '.sdk-set-value-btn, .sdk-copy-get-value, .sdk-toggle-get-value, .sdk-paste-value'
+        );
+        $('#sdk-tool-main').on(
+            'click',
+            '.sdk-set-value-btn, .sdk-copy-get-value, .sdk-toggle-get-value, .sdk-paste-value',
             function (e) {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
@@ -136,6 +139,17 @@ function sdkPopup() {
                     document.execCommand('paste');
                     Helper.showTip('粘贴成功!');
                 }
+                else if (button.hasClass('sdk-toggle-get-value')) {
+                    var target = $('.sdk-fieldset:eq(' + index +')');
+                    if (target.hasClass('sdk-fieldset-toggle')) {
+                        button.text('收起');
+                        target.removeClass('sdk-fieldset-toggle');
+                    }
+                    else {
+                        button.text('展开');
+                        target.addClass('sdk-fieldset-toggle');
+                    }
+                }
             }
         );
         Helper.waiting(false);
@@ -152,10 +166,10 @@ function sdkPopup() {
                     temp = temp.replace(/%legend%/, editor.templateName);
                     temp = temp.replace(/%index%/g, index);
                     if (index === ECOM_MA_LEGO.length - 1) {
-                        temp = temp.replace(/%sdk\-editor\-fieldset\-last%/, ' sdk-editor-fieldset-last');
+                        temp = temp.replace(/%sdk\-fieldset\-last%/, ' sdk-fieldset-last');
                     }
                     else {
-                        temp = temp.replace(/%sdk\-editor\-fieldset\-last%/, '');
+                        temp = temp.replace(/%sdk\-fieldset\-last%/, '');
                     }
                     tmpl += temp;
                 });
