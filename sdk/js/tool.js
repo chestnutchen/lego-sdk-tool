@@ -1,11 +1,12 @@
+var popup = {};
 var MESSAGE = {};
 
 var Helper = {
     colors: {
         invalid: '#8B0000',
         valid: '#333',
-        warning: '#FFFACD',
-        good: '#C0FF3E'
+        warning: '#FFFCD1',
+        good: '#6AE450'
     },
 
     waiting: (function () {
@@ -32,7 +33,7 @@ var Helper = {
         var forwardStartTime = 0;
         var forwardHide = null;
 
-        function setColor(isErr) {
+        function _setColor(isErr) {
             if (isErr) {
                $('#tips').css('color', Helper.colors.invalid);
                $('#tips').css('background-color', Helper.colors.warning);
@@ -43,25 +44,25 @@ var Helper = {
             }
         }
 
-        function hideTip() {
+        function _hideTip() {
             $('#tips').hide();
             consecutive = 0;
             cumulativeTime = 0;
             showing = false;
         }
 
-        function showTip(tips, isErr, delayForHideAfterShow) {
+        function _showTip(tips, isErr, delayForHideAfterShow) {
             showing = true;
             lastTip = {
                 tips: tips,
                 isErr: isErr
             };
             $('#tips').text(tips).show();
-            setColor(isErr);
+            _setColor(isErr);
             forwardStartTime = (new Date()).getTime();
             forwardHide = setTimeout(
                 function () {
-                    hideTip();
+                    _hideTip();
                 },
                 delayForHideAfterShow
             );
@@ -73,7 +74,7 @@ var Helper = {
             }
 
             if (!showing) {
-                showTip(tips, isErr, 1500);
+                _showTip(tips, isErr, 1500);
             }
             else {
                 var now = (new Date()).getTime();
@@ -89,7 +90,7 @@ var Helper = {
                     consecutive = 0;
                     cumulativeTime = 0;
                 }
-                showTip(tips, isErr, delayForHideAfterShow);
+                _showTip(tips, isErr, delayForHideAfterShow);
             }
         };
     })(),
@@ -107,7 +108,9 @@ var Helper = {
 Helper.waiting(true);
 
 function sdkPopup() {
-    var bindEvents = function (ECOM_MA_LEGO) {
+    var _editorGet = [];
+    var _editorSet = [];
+    var _bindEvents = function (datasource) {
         $('#sdk-tool-main').off(
             'click',
             '.sdk-set-value-btn, .sdk-copy-get-value, .sdk-toggle-get-value, .sdk-paste-value'
@@ -119,24 +122,32 @@ function sdkPopup() {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
                 if (button.hasClass('sdk-set-value-btn')) {
-                    if (!$('.sdk-set-value:eq(' + index + ')').val()) {
+                    var valueToSet = _editorSet[index].getText();
+                    if (!valueToSet) {
                         Helper.showTip('亲忘了填数据...', true);
                         return;
                     }
                     Helper.sendMessage({
                         code: MESSAGE.SET_SDK_VALUE,
-                        name: ECOM_MA_LEGO[index].id,
-                        value: $('.sdk-set-value:eq(' + index + ')').val()
+                        name: datasource[index].id,
+                        index: index,
+                        value: valueToSet
                     });
                 }
                 else if (button.hasClass('sdk-copy-get-value')) {
-                    $('.sdk-raw-value:eq(' + index +')').select();
+                    $('.sdk-raw-value:eq(' + index +')')
+                        .val(datasource[index].value)
+                        .select();
                     document.execCommand('copy');
+
                     Helper.showTip('复制成功!');
                 }
                 else if (button.hasClass('sdk-paste-value')) {
-                    $('.sdk-set-value:eq(' + index +')').select();
+                    var rawValueTextarea = $('.sdk-raw-value:eq(' + index +')');
+                    rawValueTextarea.select();
                     document.execCommand('paste');
+                    _editorSet[index].set(JSON.parse(rawValueTextarea.val()));
+
                     Helper.showTip('粘贴成功!');
                 }
                 else if (button.hasClass('sdk-toggle-get-value')) {
@@ -149,21 +160,30 @@ function sdkPopup() {
                         button.text('展开');
                         target.addClass('sdk-fieldset-toggle');
                     }
+                    setTimeout(
+                        function () {
+                            _editorGet[index].resize();
+                            _editorSet[index].resize();
+                        },
+                        301
+                    );
                 }
             }
         );
         Helper.waiting(false);
     };
 
+    this.datasource = [];
+
     this.init = function (ECOM_MA_LEGO) {
         if (ECOM_MA_LEGO && ECOM_MA_LEGO.length) {
+            this.datasource = ECOM_MA_LEGO;
             Helper.waiting(true);
             $.get(chrome.extension.getURL('../templateForSdk.html'), function (data) {
                 var template = data;
                 var tmpl = '';
                 $.each(ECOM_MA_LEGO, function (index, editor) {
-                    var temp = template.replace(/%editorValue%/g, JSON.stringify(editor.value, null, 4));
-                    temp = temp.replace(/%legend%/, editor.templateName);
+                    var temp = template.replace(/%legend%/, editor.templateName);
                     temp = temp.replace(/%index%/g, index);
                     if (index === ECOM_MA_LEGO.length - 1) {
                         temp = temp.replace(/%sdk\-fieldset\-last%/, ' sdk-fieldset-last');
@@ -175,7 +195,24 @@ function sdkPopup() {
                 });
                 $('#sdk-tool-main').html(tmpl);
 
-                bindEvents(ECOM_MA_LEGO);
+                $('.sdk-fieldset').each(function (index, element) {
+                    var get = $(element).find('.sdk-get-value')[0];
+                    var set = $(element).find('.sdk-set-value')[0];
+                    var jsonEditorGet = new JSONEditor(
+                        get,
+                        {
+                            mode: 'code',
+                            indentation: 4
+                        },
+                        JSON.parse(ECOM_MA_LEGO[index].value)
+                    );
+                    $(element).find('.ace_text-input').attr('disabled', 'disabled');
+                    var jsonEditorSet = new JSONEditor(set, { mode: 'code', indentation: 4 });
+                    _editorGet.push(jsonEditorGet);
+                    _editorSet.push(jsonEditorSet);
+                });
+
+                _bindEvents(ECOM_MA_LEGO);
             });
         }
         else {
@@ -184,10 +221,14 @@ function sdkPopup() {
             Helper.waiting(false);
         }
     };
+
+    this.setValue = function (value, index) {
+        _editorSet[index].setText(value);
+    };
 }
 
 function materialPopup() {
-    var bindEvents = function () {
+    var _bindEvents = function () {
 
     };
 
@@ -203,14 +244,14 @@ $(function() {
             switch (request.code) {
                 case MESSAGE.RECEIVE_MATERIALS:
                     if (request.materials && request.materials.length) {
-                        var popup = new materialPopup();
+                        popup = new materialPopup();
                         popup.init(request.materials);
                     }
                     break;
 
                 case MESSAGE.RECEIVE_SDK_OBJECT:
                     if (request.ECOM_MA_LEGO) {
-                        var popup = new sdkPopup();
+                        popup = new sdkPopup();
                         popup.init(request.ECOM_MA_LEGO);
                     }
                     break;
@@ -233,6 +274,9 @@ $(function() {
                     break;
 
                 case MESSAGE.RECEIVE_SET_SUCCESS:
+                    if (request.value) {
+                        popup.setValue(request.value, request.index);
+                    }
                     Helper.showTip('设置成功!');
                     break;
 

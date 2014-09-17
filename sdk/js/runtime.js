@@ -39,7 +39,7 @@ window.addEventListener('message', function (e) {
                         ECOM_MA_LEGO.push({
                             id: key,
                             templateName: instances[key].template.displayName,
-                            value: instances[key].getValue()
+                            value: JSON.stringify(instances[key].getValue())
                         });
                     }
                 }
@@ -52,11 +52,15 @@ window.addEventListener('message', function (e) {
             case LEGOSDKTOOLMESSAGE.SET_SDK_VALUE_ON_PAGE:
                 if (e.data.name && e.data.value) {
                     var name = e.data.name;
+                    var value = e.data.value;
+                    var index = e.data.index;
                     if (window.ECOM_MA_LEGO && window.ECOM_MA_LEGO.instances) {
                         try {
-                            window.ECOM_MA_LEGO.instances[name].setValue(JSON.parse(e.data.value));
+                            window.ECOM_MA_LEGO.instances[name].setValue(JSON.parse(value));
                             window.postMessage({
-                                code: LEGOSDKTOOLMESSAGE.RECEIVE_SET_SUCCESS_ON_PAGE
+                                code: LEGOSDKTOOLMESSAGE.RECEIVE_SET_SUCCESS_ON_PAGE,
+                                index: index,
+                                value: value
                             }, '*');
                         }
                         catch (err) {

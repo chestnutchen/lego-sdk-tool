@@ -11,9 +11,7 @@ body {
     padding: 2px;
     background: #fff;
     color: blue;
-    text-decoration: underline;
     cursor: pointer;
-    outline: none;
 }
 
 .link-btn:active {
@@ -24,21 +22,10 @@ body {
     text-align: center;
     vertical-align: top;
     overflow: hidden;
-    border: 1px solid #418ada;
-    border-radius: 2px 2px 2px 2px;
+    border: none;
     color: white;
-    background-color: #61a6f5;
-    background: -webkit-linear-gradient(top, #61a6f5, #4090ec);
+    background-color: #09AEEF;
     cursor: pointer;
-    outline: none;
-}
-
-.ocean-btn:hover {
-    border: 1px solid #3467b7;
-}
-
-.ocean-btn:active {
-    background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
 }
 
 .clearfix {
@@ -74,6 +61,7 @@ body {
     border-radius: 2px;
     box-shadow: 0 0 3px 0 #ccc;
     opacity: 0.8;
+    z-index: 9999999;
 }
 
 .sdk-tool-container {
@@ -83,10 +71,6 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     font-size: 12px;
-}
-
-.sdk-tool-main {
-    padding-top: 10px;
 }
 
 .sdk-not-found {
@@ -110,19 +94,31 @@ body {
 .sdk-tool-container fieldset {
     padding: 0;
     border: none;
-    border-top: 1px dashed #bbb;
 }
 
 .sdk-fieldset {
-    margin-bottom: 20px;
+    margin-bottom: 7px;
+}
+
+.sdk-separate {
+    height: 1px;
+    width: 100%;
+    margin-top: 13px;
+    border-top: 1px dashed #cccccc;
 }
 
 .sdk-fieldset-last {
     margin-bottom: 0;
 }
 
+.sdk-fieldset-last .sdk-separate {
+    border: none;
+}
+
 .sdk-tool-container legend {
-    margin-left: 20px;
+    width: 100%;
+    line-height: 22px;
+    background-color: #fff;
     color: #000;
     font-size: 14px;
     font-weight: bold;
@@ -151,7 +147,7 @@ body {
 .sdk-get-value-arrow,
 .sdk-get-value,
 .sdk-set-value {
-    -webkit-transition: all .5s;
+    -webkit-transition: all .3s;
 }
 
 .sdk-fieldset-toggle .sdk-get-value-arrow {
@@ -160,14 +156,26 @@ body {
 }
 
 .sdk-get-value {
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: auto;
+    height: 300px;
+}
+
+.sdk-get-value .jsoneditor .ace-jsoneditor .ace_scroller,
+.sdk-get-value .jsoneditor div.tree {
     background-color: #eee;
 }
 
+.jsoneditor .menu {
+    background-color: #ADD8E6;
+}
+
+.jsoneditor,
+.jsoneditor .menu,
+.jsoneditor .menu button {
+    border-color: #ADD8E6;
+}
+
 .sdk-fieldset-toggle .sdk-get-value {
-    max-height: 50px;
+    height: 50px;
 }
 
 .sdk-random-value {
@@ -182,14 +190,13 @@ body {
 
 .sdk-set-value {
     width: 100%;
-    height: 50px;
+    height: 80px;
     padding: 0;
     margin: 0;
-    resize: none;
 }
 
 .sdk-fieldset-toggle .sdk-set-value {
-    height: 300px;
+    height: 330px;
 }
 
 .sdk-set-value-btn {
