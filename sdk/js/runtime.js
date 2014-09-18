@@ -39,7 +39,7 @@ window.addEventListener('message', function (e) {
                         ECOM_MA_LEGO.push({
                             id: key,
                             templateName: instances[key].template.displayName,
-                            value: JSON.stringify(instances[key].getValue())
+                            value: JSON.stringify(instances[key].getValue(), null, 4)
                         });
                     }
                 }

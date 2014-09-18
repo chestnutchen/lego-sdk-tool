@@ -18,14 +18,27 @@ body {
     color: #EE7600;
 }
 
-.ocean-btn {
-    text-align: center;
+.icon-btn {
+    display: inline-block;
+    height: 25px;
+    width: 25px;
+    margin-right: 6px;
     vertical-align: top;
     overflow: hidden;
     border: none;
+    border-radius: 1px;
     color: white;
-    background-color: #09AEEF;
+    background-color: #fff;
     cursor: pointer;
+    outline: none;
+}
+
+.icon-btn:hover {
+    background-color: #DCDCDC;
+}
+
+.icon-btn:active {
+    background-color: #f6f6f6;
 }
 
 .clearfix {
@@ -91,19 +104,17 @@ body {
     display: none;
 }
 
-.sdk-tool-container fieldset {
-    padding: 0;
-    border: none;
-}
-
 .sdk-fieldset {
-    margin-bottom: 7px;
+    padding: 0;
+    margin: 0;
+    margin-bottom: 6px;
+    border: none;
 }
 
 .sdk-separate {
     height: 1px;
     width: 100%;
-    margin-top: 13px;
+    margin-top: 14px;
     border-top: 1px dashed #cccccc;
 }
 
@@ -112,6 +123,7 @@ body {
 }
 
 .sdk-fieldset-last .sdk-separate {
+    margin-top: 0;
     border: none;
 }
 
@@ -137,11 +149,14 @@ body {
     margin-bottom: 8px;
 }
 
-.sdk-copy-get-value,
 .sdk-toggle-get-value {
     float: right;
-    padding: 0;
-    margin: -3px 3px 0 8px;
+    margin-right: 0;
+    background: url(../images/toggle-up.png) no-repeat scroll 0 0;
+}
+
+.sdk-fieldset-toggle .sdk-toggle-get-value {
+    background: url(../images/toggle-down.png) no-repeat scroll 0 0;
 }
 
 .sdk-get-value-arrow,
@@ -155,31 +170,55 @@ body {
     -webkit-transform: rotate(-90deg);
 }
 
-.sdk-get-value {
-    height: 300px;
-}
-
-.sdk-get-value .jsoneditor .ace-jsoneditor .ace_scroller,
-.sdk-get-value .jsoneditor div.tree {
+.sdk-editor-menu {
+     -webkit-box-sizing: border-box;
+    width: 100%;
+    height: 35px;
+    padding: 5px 8px;
     background-color: #eee;
 }
 
-.jsoneditor .menu {
-    background-color: #ADD8E6;
+.sdk-get-format,
+.sdk-set-format {
+    background: url(../images/format.png) no-repeat scroll 0 0;
 }
 
-.jsoneditor,
-.jsoneditor .menu,
-.jsoneditor .menu button {
-    border-color: #ADD8E6;
+.sdk-get-compact,
+.sdk-set-compact {
+    background: url(../images/compact.png) no-repeat scroll 0 0;
+}
+
+.sdk-copy-value {
+    background: url(../images/copy.png) no-repeat scroll 0 0;
+}
+
+.sdk-paste-value {
+    background: url(../images/paste.png) no-repeat scroll 0 0;
+}
+
+.sdk-set-value-btn {
+    background: url(../images/input.png) no-repeat scroll 0 0;
+}
+
+.sdk-set-valid-btn {
+    background: url(../images/valid.png) no-repeat scroll 0 0;
+}
+
+.sdk-set-invalid-btn {
+    background: url(../images/invalid.png) no-repeat scroll 0 0;
+}
+
+.sdk-get-value {
+    position: relative;
+    height: 280px;
+}
+
+.sdk-get-value .ace_cursor-layer .ace_cursor {
+    color: #666;
 }
 
 .sdk-fieldset-toggle .sdk-get-value {
-    height: 50px;
-}
-
-.sdk-random-value {
-    float: right;
+    height: 40px;
 }
 
 .sdk-raw-value {
@@ -189,21 +228,18 @@ body {
 }
 
 .sdk-set-value {
+    position: relative;
     width: 100%;
-    height: 80px;
+    height: 60px;
     padding: 0;
     margin: 0;
 }
 
 .sdk-fieldset-toggle .sdk-set-value {
-    height: 330px;
+    height: 300px;
 }
 
 .sdk-set-value-btn {
-    height: 23px;
-    width: 110px;
-    line-height: 21px;
-    padding: 0 10px;
-    margin-top: 8px;
-    font-size: 12px;
+    float: right;
+    margin-right: 0;
 }

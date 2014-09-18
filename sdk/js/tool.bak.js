@@ -110,37 +110,19 @@ Helper.waiting(true);
 function sdkPopup() {
     var _editorGet = [];
     var _editorSet = [];
-
-    var _beautifyJSON = function (editor, type) {
-        var value = editor.getValue();
-        if (type === 'format') {
-            value = JSON.stringify(JSON.parse(value), null, 4);
-        }
-        else {
-            value = JSON.stringify(JSON.parse(value));
-        }
-        editor.setValue(value);
-        editor.moveCursorTo(0, 0);
-        editor.clearSelection();
-    };
-
     var _bindEvents = function (datasource) {
         $('#sdk-tool-main').off(
             'click',
-            '.sdk-set-value-btn, .sdk-copy-value, '
-                + '.sdk-toggle-get-value, .sdk-paste-value, '
-                + '.editor-operation'
+            '.sdk-set-value-btn, .sdk-copy-get-value, .sdk-toggle-get-value, .sdk-paste-value'
         );
         $('#sdk-tool-main').on(
             'click',
-            '.sdk-set-value-btn, .sdk-copy-value, '
-                + '.sdk-toggle-get-value, .sdk-paste-value, '
-                + '.editor-operation',
+            '.sdk-set-value-btn, .sdk-copy-get-value, .sdk-toggle-get-value, .sdk-paste-value',
             function (e) {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
                 if (button.hasClass('sdk-set-value-btn')) {
-                    var valueToSet = _editorSet[index].getValue();
+                    var valueToSet = _editorSet[index].getText();
                     if (!valueToSet) {
                         Helper.showTip('亲忘了填数据...', true);
                         return;
@@ -152,7 +134,7 @@ function sdkPopup() {
                         value: valueToSet
                     });
                 }
-                else if (button.hasClass('sdk-copy-value')) {
+                else if (button.hasClass('sdk-copy-get-value')) {
                     $('.sdk-raw-value:eq(' + index +')')
                         .val(datasource[index].value)
                         .select();
@@ -164,34 +146,18 @@ function sdkPopup() {
                     var rawValueTextarea = $('.sdk-raw-value:eq(' + index +')');
                     rawValueTextarea.select();
                     document.execCommand('paste');
-                    _editorSet[index].setValue(rawValueTextarea.val());
+                    _editorSet[index].set(JSON.parse(rawValueTextarea.val()));
 
                     Helper.showTip('粘贴成功!');
-                }
-                else if (button.hasClass('editor-operation')) {
-                    var editor = _editorGet[index];
-                    var type = 'format';
-                    if (button.attr('class').indexOf('set') !== -1) {
-                        editor = _editorSet[index];
-                    }
-                    if (button.attr('class').indexOf('compact') !== -1) {
-                        type = 'compact';
-                    }
-                    try {
-                        _beautifyJSON(editor, type);
-                    }
-                    catch (err) {
-
-                    }
                 }
                 else if (button.hasClass('sdk-toggle-get-value')) {
                     var target = $('.sdk-fieldset:eq(' + index +')');
                     if (target.hasClass('sdk-fieldset-toggle')) {
-                        button.attr('title', '收起');
+                        button.text('收起');
                         target.removeClass('sdk-fieldset-toggle');
                     }
                     else {
-                        button.attr('title', '展开');
+                        button.text('展开');
                         target.addClass('sdk-fieldset-toggle');
                     }
                     setTimeout(
@@ -232,22 +198,16 @@ function sdkPopup() {
                 $('.sdk-fieldset').each(function (index, element) {
                     var get = $(element).find('.sdk-get-value')[0];
                     var set = $(element).find('.sdk-set-value')[0];
-
-                    var jsonEditorGet = new ace.edit(get);
-                    jsonEditorGet.session.setMode('ace/mode/json');
-                    jsonEditorGet.setTheme('ace/theme/monokai');
-                    jsonEditorGet.setValue(ECOM_MA_LEGO[index].value);
-                    jsonEditorGet.setReadOnly(true);
-                    jsonEditorGet.clearSelection();
-
-                    var jsonEditorSet = new ace.edit(set);
-                    jsonEditorSet.session.setMode('ace/mode/json');
-                    jsonEditorSet.setTheme('ace/theme/monokai');
-                    jsonEditorSet.setValue('{}');
-                    jsonEditorSet.focus();
-                    jsonEditorSet.moveCursorTo(0, 1);
-                    jsonEditorSet.clearSelection();
-
+                    var jsonEditorGet = new JSONEditor(
+                        get,
+                        {
+                            mode: 'code',
+                            indentation: 4
+                        },
+                        JSON.parse(ECOM_MA_LEGO[index].value)
+                    );
+                    $(element).find('.ace_text-input').attr('disabled', 'disabled');
+                    var jsonEditorSet = new JSONEditor(set, { mode: 'code', indentation: 4 });
                     _editorGet.push(jsonEditorGet);
                     _editorSet.push(jsonEditorSet);
                 });
@@ -263,7 +223,7 @@ function sdkPopup() {
     };
 
     this.setValue = function (value, index) {
-        _editorSet[index].setValue(value);
+        _editorSet[index].setText(value);
     };
 }
 
@@ -310,6 +270,7 @@ $(function() {
                         }
                     }
                     Helper.showTip(message || '发生了一些错误，中国或成最大输家', true);
+                    console.log(errMsg);
                     break;
 
                 case MESSAGE.RECEIVE_SET_SUCCESS:
