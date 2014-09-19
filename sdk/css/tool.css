@@ -6,6 +6,45 @@ body {
     margin: 10px;
 }
 
+.link-btn {
+    border: none;
+    padding: 2px;
+    background: #fff;
+    color: blue;
+    cursor: pointer;
+}
+
+.link-btn:active {
+    color: #EE7600;
+}
+
+.icon-btn {
+    display: inline-block;
+    height: 25px;
+    width: 25px;
+    margin-right: 6px;
+    vertical-align: top;
+    overflow: hidden;
+    border: none;
+    border-radius: 1px;
+    color: white;
+    background-color: #fff;
+    cursor: pointer;
+    outline: none;
+}
+
+.icon-btn:hover {
+    background-color: #DCDCDC;
+}
+
+.icon-btn:active {
+    background-color: #f6f6f6;
+}
+
+.clearfix {
+    clear: both;
+}
+
 .sdk-tool-mask {
     width: 100%;
     height: 520px;
@@ -35,6 +74,7 @@ body {
     border-radius: 2px;
     box-shadow: 0 0 3px 0 #ccc;
     opacity: 0.8;
+    z-index: 9999999;
 }
 
 .sdk-tool-container {
@@ -42,38 +82,64 @@ body {
     min-height: 300px;
     max-height: 520px;
     overflow-y: auto;
+    overflow-x: hidden;
     font-size: 12px;
-}
-
-.sdk-tool-main {
-    padding-top: 10px;
 }
 
 .sdk-not-found {
     width: 100%;
     padding: 140px 0;
     text-align: center;
-    color: #999; 
+    color: #999;
     font-size: 20px;
     display: none;
     box-shadow: 0 0 80px rgba(128, 128, 128, 0.5) inset;
 }
 
-.sdk-tool-container fieldset {
-    padding: 0;
-    border: none;
-    border-top: 1px dashed #bbb;
+.sdk-update-tip {
+    width: 100%;
+    padding: 140px 0;
+    color: #999;
+    font-size: 20px;
+    display: none;
 }
 
-.sdk-editor-fieldset-first {
-    margin-bottom: 15px;
+.sdk-fieldset {
+    padding: 0;
+    margin: 0;
+    margin-bottom: 6px;
+    border: none;
+}
+
+.sdk-separate {
+    height: 1px;
+    width: 100%;
+    margin-top: 14px;
+    border-top: 1px dashed #cccccc;
+}
+
+.sdk-fieldset-last {
+    margin-bottom: 0;
+}
+
+.sdk-fieldset-last .sdk-separate {
+    margin-top: 0;
+    border: none;
 }
 
 .sdk-tool-container legend {
-    margin-left: 20px;
+    width: 100%;
+    line-height: 22px;
+    background-color: #fff;
     color: #000;
     font-size: 14px;
     font-weight: bold;
+}
+
+.sdk-tool-container legend a,
+.sdk-tool-container legend a:visited {
+    color: #4876FF;
+    text-decoration: none;
 }
 
 .sdk-tool-container pre {
@@ -81,70 +147,116 @@ body {
     padding: 0;
 }
 
-.sdk-editor-get-value p span,
-.sdk-editor-set-value p span {
-    color: #EE7600;
+.sdk-set-value-block p {
+    display: inline-block;
+    line-height: 25px;
+    height: 25px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
-.sdk-get-value-copy {
+.sdk-toggle-get-value {
     float: right;
-    padding: 0;
-    margin-top: -3px;
-    text-decoration: underline;
-    color: blue;
-    background-color: #fff;
-    border: none;
-    cursor: pointer;
-    outline: none;
+    margin-right: 0;
+    background: url(../images/toggle-up.png) no-repeat scroll 0 0;
+    -webkit-transition: -webkit-transform .3s;
 }
 
-.sdk-get-value-copy:active {
-    color: red;
+.sdk-fieldset-toggle .sdk-toggle-get-value {
+    -webkit-transform: rotate(180deg);
+}
+
+.sdk-get-value-arrow,
+.sdk-get-value,
+.sdk-set-value {
+    -webkit-transition: all .3s;
+}
+
+.sdk-fieldset-toggle .sdk-get-value-arrow {
+    display: inline-block;
+    -webkit-transform: rotate(-90deg);
+}
+
+.sdk-editor-menu {
+     -webkit-box-sizing: border-box;
+    width: 100%;
+    height: 35px;
+    padding: 5px 8px;
+    background-color: #eee;
+}
+
+.sdk-get-format,
+.sdk-set-format {
+    background: url(../images/format.png) no-repeat scroll 0 0;
+}
+
+.sdk-get-compact,
+.sdk-set-compact {
+    background: url(../images/compact.png) no-repeat scroll 0 0;
+}
+
+.sdk-copy-value {
+    background: url(../images/copy.png) no-repeat scroll 0 0;
+}
+
+.sdk-paste-value {
+    background: url(../images/paste.png) no-repeat scroll 0 0;
+}
+
+.sdk-set-value-btn {
+    background: url(../images/input.png) no-repeat scroll 0 0;
+}
+
+.sdk-set-valid-btn {
+    background: url(../images/valid.png) no-repeat scroll 0 0 #ddd;
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.sdk-set-valid-btn:hover,
+.sdk-set-invalid-btn:hover,
+.sdk-set-valid-btn:active
+.sdk-set-invalid-btn:active {
+    background-color: #ddd;
+}
+
+.sdk-set-invalid-btn {
+    background: url(../images/invalid.png) no-repeat scroll 0 0 #ddd;
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .sdk-get-value {
-    width: 490px;
-    max-height: 300px;
-    overflow-y: auto;
-    overflow-x: auto;
-    background-color: #eee;
+    position: relative;
+    height: 280px;
+}
+
+.sdk-get-value .ace_cursor-layer .ace_cursor {
+    color: #666;
+}
+
+.sdk-fieldset-toggle .sdk-get-value {
+    height: 40px;
 }
 
 .sdk-raw-value {
     position: absolute;
-    top:-999px;
     left:-999px;
 }
 
 .sdk-set-value {
-    width: 472px;
-    height: 50px;
-    resize: none;
+    position: relative;
+    width: 100%;
+    height: 60px;
+    padding: 0;
+    margin: 0;
 }
 
-.set-sdk-value-btn {
-    height: 23px;
-    width: 110px;
-    line-height: 21px;
-    padding: 0 10px;
-    margin-top: 8px;
-    font-size: 12px;
-    text-align: center;
-    vertical-align: top;
-    overflow: hidden;
-    border: 1px solid #418ada;
-    border-radius: 2px 2px 2px 2px;
-    color: white;
-    background-color: #61a6f5;
-    background: -webkit-linear-gradient(top, #61a6f5, #4090ec);
-    cursor: pointer;
-    outline: none;
+.sdk-fieldset-toggle .sdk-set-value {
+    height: 300px;
 }
 
-.set-sdk-value-btn:hover {
-    border: 1px solid #3467b7;
-}
-
-.set-sdk-value-btn:active {
-    background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
+.sdk-set-value-btn {
+    float: right;
+    margin-right: 0;
 }
