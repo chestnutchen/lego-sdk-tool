@@ -96,6 +96,16 @@ var Helper = {
     })(),
 
     parseError: function (errMsg) {
+        var tokenErr = errMsg.indexOf('Unexpected token') > -1;
+        var endErr = errMsg.indexOf('Unexpected end of input') > -1;
+        var message = errMsg;
+        if (tokenErr) {
+            message = '数据里边有非法字符：' + errMsg.slice('Unexpected token'.length + 1);
+        }
+        else if (endErr) {
+            message = '数据中存在没有闭合的`中括号`或者`花括号`';
+        }
+        return message;
     },
 
     sendMessage: function (data, callback) {
@@ -111,7 +121,7 @@ function sdkPopup() {
     var _editorGet = [];
     var _editorSet = [];
 
-    var _beautifyJSON = function (editor, type) {
+    function _beautifyJSON(editor, type) {
         var value = editor.getValue();
         if (type === 'format') {
             value = JSON.stringify(JSON.parse(value), null, 4);
@@ -122,9 +132,9 @@ function sdkPopup() {
         editor.setValue(value);
         editor.moveCursorTo(0, 0);
         editor.clearSelection();
-    };
+    }
 
-    var _bindEvents = function (datasource) {
+    function _bindEvents(datasource) {
         $('#sdk-tool-main').off(
             'click',
             '.sdk-set-value-btn, .sdk-copy-value, '
@@ -154,17 +164,17 @@ function sdkPopup() {
                 }
                 else if (button.hasClass('sdk-copy-value')) {
                     $('.sdk-raw-value:eq(' + index +')')
-                        .val(datasource[index].value)
+                        .val(_editorGet[index].getValue())
                         .select();
                     document.execCommand('copy');
 
                     Helper.showTip('复制成功!');
                 }
                 else if (button.hasClass('sdk-paste-value')) {
-                    var rawValueTextarea = $('.sdk-raw-value:eq(' + index +')');
+                    _editorSet[index].setValue('');
+                    var rawValueTextarea = $('.sdk-set-value .ace_text-input:eq(' + index +')');
                     rawValueTextarea.select();
                     document.execCommand('paste');
-                    _editorSet[index].setValue(rawValueTextarea.val());
 
                     Helper.showTip('粘贴成功!');
                 }
@@ -181,7 +191,8 @@ function sdkPopup() {
                         _beautifyJSON(editor, type);
                     }
                     catch (err) {
-
+                        var message = Helper.parseError(err.message);
+                        Helper.showTip(message, true);
                     }
                 }
                 else if (button.hasClass('sdk-toggle-get-value')) {
@@ -205,7 +216,94 @@ function sdkPopup() {
             }
         );
         Helper.waiting(false);
-    };
+    }
+
+    function _initTemplate(template, index, length, impl) {
+        var temp = template.replace(
+            /%legend%/,
+            impl.templateName
+        );
+        temp = temp.replace(/%index%/g, index);
+        if (index === length - 1) {
+            temp = temp.replace(/%sdk\-fieldset\-last%/, ' sdk-fieldset-last');
+        }
+        else {
+            temp = temp.replace(/%sdk\-fieldset\-last%/, '');
+        }
+
+        return temp;
+    }
+
+    function _initAceEditor(datasource) {
+        $('.sdk-fieldset').each(function (index, element) {
+            var get = $(element).find('.sdk-get-value')[0];
+            var set = $(element).find('.sdk-set-value')[0];
+
+            var jsonEditorGet = new ace.edit(get);
+            jsonEditorGet.session.setMode('ace/mode/json');
+            jsonEditorGet.setTheme('ace/theme/monokai');
+            jsonEditorGet.setValue(datasource[index].value);
+            jsonEditorGet.setReadOnly(true);
+            jsonEditorGet.clearSelection();
+
+            var jsonEditorSet = new ace.edit(set);
+            jsonEditorSet.session.setMode('ace/mode/json');
+            jsonEditorSet.setTheme('ace/theme/monokai');
+            jsonEditorSet.setValue('{}');
+            jsonEditorSet.focus();
+            jsonEditorSet.moveCursorTo(0, 1);
+            jsonEditorSet.clearSelection();
+
+            _editorGet.push(jsonEditorGet);
+            _editorSet.push(jsonEditorSet);
+        });
+    }
+
+    function _getAndPaintNameSpaceInfo(datasource) {
+        $.each(datasource, function (index, impl) {
+            var templateId = impl.templateId;
+            if (templateId) {
+                var lego = templateId > 20000000
+                    ? 'lego-off'
+                    : 'lego';
+
+                $.ajax(
+                    'http://' + lego + '.baidu.com/data/template/detail',
+                    {
+                        dataType: 'json',
+                        data: {
+                            templateId: templateId
+                        },
+                        header: {
+                            'X-Request-By': 'ERApplication',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }
+                ).always(function (data) {
+                    if (data
+                        && data.success !== false
+                        && data.success !== 'false'
+                        && data.result
+                        && data.result.impls
+                    ) {
+                        var ns = data.result.impls[0].ns;
+                        datasource[index].namespace = ns;
+                        var legend = $('.sdk-tool-container legend:eq(' + index + ')');
+                        legend.html(
+                            legend.html()
+                                + ' - ' + templateId
+                                + ' - '
+                                + '<a target="_blank" title="去素材库改spec" href="'
+                                + 'http://' + lego + '.baidu.com/#/lego/template/js/perform/update~id='
+                                    + templateId + '">'
+                                    + ns
+                                + '</a>'
+                        );
+                    }
+                });
+            }
+        });
+    }
 
     this.datasource = [];
 
@@ -215,43 +313,14 @@ function sdkPopup() {
             Helper.waiting(true);
             $.get(chrome.extension.getURL('../templateForSdk.html'), function (data) {
                 var template = data;
+                var length = ECOM_MA_LEGO.length;
                 var tmpl = '';
-                $.each(ECOM_MA_LEGO, function (index, editor) {
-                    var temp = template.replace(/%legend%/, editor.templateName);
-                    temp = temp.replace(/%index%/g, index);
-                    if (index === ECOM_MA_LEGO.length - 1) {
-                        temp = temp.replace(/%sdk\-fieldset\-last%/, ' sdk-fieldset-last');
-                    }
-                    else {
-                        temp = temp.replace(/%sdk\-fieldset\-last%/, '');
-                    }
-                    tmpl += temp;
+                $.each(ECOM_MA_LEGO, function (index, impl) {
+                    tmpl += _initTemplate(template, index, length, impl);
                 });
                 $('#sdk-tool-main').html(tmpl);
-
-                $('.sdk-fieldset').each(function (index, element) {
-                    var get = $(element).find('.sdk-get-value')[0];
-                    var set = $(element).find('.sdk-set-value')[0];
-
-                    var jsonEditorGet = new ace.edit(get);
-                    jsonEditorGet.session.setMode('ace/mode/json');
-                    jsonEditorGet.setTheme('ace/theme/monokai');
-                    jsonEditorGet.setValue(ECOM_MA_LEGO[index].value);
-                    jsonEditorGet.setReadOnly(true);
-                    jsonEditorGet.clearSelection();
-
-                    var jsonEditorSet = new ace.edit(set);
-                    jsonEditorSet.session.setMode('ace/mode/json');
-                    jsonEditorSet.setTheme('ace/theme/monokai');
-                    jsonEditorSet.setValue('{}');
-                    jsonEditorSet.focus();
-                    jsonEditorSet.moveCursorTo(0, 1);
-                    jsonEditorSet.clearSelection();
-
-                    _editorGet.push(jsonEditorGet);
-                    _editorSet.push(jsonEditorSet);
-                });
-
+                _getAndPaintNameSpaceInfo(ECOM_MA_LEGO);
+                _initAceEditor(ECOM_MA_LEGO);
                 _bindEvents(ECOM_MA_LEGO);
             });
         }
@@ -299,15 +368,8 @@ $(function() {
                 case MESSAGE.RECEIVE_ERROR:
                     var errMsg = request.message;
                     var message = '';
-                    if (request.message) {
-                        var tokenErr = errMsg.indexOf('Unexpected token') > -1;
-                        var endErr = errMsg.indexOf('Unexpected end of input') > -1;
-                        if (tokenErr) {
-                            message = '数据里边有非法字符：' + errMsg.slice('Unexpected token'.length + 1);
-                        }
-                        else if (endErr) {
-                            message = '数据中存在没有闭合的`中括号`或者`花括号`';
-                        }
+                    if (errMsg) {
+                        message = Helper.parseError(errMsg);
                     }
                     Helper.showTip(message || '发生了一些错误，中国或成最大输家', true);
                     break;

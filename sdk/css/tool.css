@@ -136,6 +136,12 @@ body {
     font-weight: bold;
 }
 
+.sdk-tool-container legend a,
+.sdk-tool-container legend a:visited {
+    color: #4876FF;
+    text-decoration: none;
+}
+
 .sdk-tool-container pre {
     margin: 0;
     padding: 0;
@@ -153,10 +159,11 @@ body {
     float: right;
     margin-right: 0;
     background: url(../images/toggle-up.png) no-repeat scroll 0 0;
+    -webkit-transition: -webkit-transform .3s;
 }
 
 .sdk-fieldset-toggle .sdk-toggle-get-value {
-    background: url(../images/toggle-down.png) no-repeat scroll 0 0;
+    -webkit-transform: rotate(180deg);
 }
 
 .sdk-get-value-arrow,
@@ -201,11 +208,22 @@ body {
 }
 
 .sdk-set-valid-btn {
-    background: url(../images/valid.png) no-repeat scroll 0 0;
+    background: url(../images/valid.png) no-repeat scroll 0 0 #ddd;
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.sdk-set-valid-btn:hover,
+.sdk-set-invalid-btn:hover,
+.sdk-set-valid-btn:active
+.sdk-set-invalid-btn:active {
+    background-color: #ddd;
 }
 
 .sdk-set-invalid-btn {
-    background: url(../images/invalid.png) no-repeat scroll 0 0;
+    background: url(../images/invalid.png) no-repeat scroll 0 0 #ddd;
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .sdk-get-value {
@@ -223,7 +241,6 @@ body {
 
 .sdk-raw-value {
     position: absolute;
-    top:-999px;
     left:-999px;
 }
 
