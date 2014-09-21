@@ -12,43 +12,46 @@ document.body.removeChild(input);
 window.addEventListener('message', function (e) {
     if (e.data && e.data.code) {
         switch (e.data.code) {
-            case LEGOSDKTOOLMESSAGE.CHECK_SDK_ACTION_TYPE:
+            case LEGOSDKTOOLMESSAGE.INIT:
                 if (window.ECOM_MA_LEGO) {
+                    var ECOM_MA_LEGO = [];
+                    if (window.ECOM_MA_LEGO) {
+                        var instances = window.ECOM_MA_LEGO.instances;
+                        for (var key in instances) {
+                            ECOM_MA_LEGO.push({
+                                id: key,
+                                templateName: instances[key].template.displayName,
+                                templateId: instances[key].template.templateId,
+                                value: JSON.stringify(instances[key].getValue(), null, 4),
+                                spec: JSON.stringify(instances[key].template.spec, null, 4)
+                            });
+                        }
+                    }
                     window.postMessage({
-                        code: LEGOSDKTOOLMESSAGE.RECEIVE_SDK_ACTION_TYPE,
-                        type: LEGOSDKTOOLMESSAGE.SDK
+                        code: LEGOSDKTOOLMESSAGE.RECEIVE_SDK_INFO_ON_PAGE,
+                        ECOM_MA_LEGO: ECOM_MA_LEGO
                     }, '*');
                 }
                 else {
+                    var materials = [];
                     for (var key in window) {
-                        if (key.match(/m[0-9]+_AD_CONFIG/)) {
-                            window.postMessage({
-                                code: LEGOSDKTOOLMESSAGE.RECEIVE_SDK_ACTION_TYPE,
-                                type: LEGOSDKTOOLMESSAGE.METERIAL
-                            }, '*');
+                        var hit = /m([0-9]+)_AD_CONFIG/.exec(key);
+                        if (hit) {
+                            var mcid = hit[1];
+                            var AD_CONFIG = window[key];
+                            var RT_CONFIG = window['m' + mcid + '_RT_CONFIG'];
+                            materials.push({
+                                mcid: hit[1],
+                                value: JSON.stringify(AD_CONFIG, null, 4),
+                                templateId: RT_CONFIG.timestamp
+                            });
                         }
                     }
+                    window.postMessage({
+                        code: LEGOSDKTOOLMESSAGE.RECEIVE_MATERIAL_ON_PAGE,
+                        materials: materials
+                    }, '*');
                 }
-                break;
-
-            case LEGOSDKTOOLMESSAGE.GET_SDK_OBJECT_ON_PAGE:
-                var ECOM_MA_LEGO = [];
-                if (window.ECOM_MA_LEGO) {
-                    var instances = window.ECOM_MA_LEGO.instances;
-                    for (var key in instances) {
-                        ECOM_MA_LEGO.push({
-                            id: key,
-                            templateName: instances[key].template.displayName,
-                            templateId: instances[key].template.templateId,
-                            value: JSON.stringify(instances[key].getValue(), null, 4),
-                            spec: JSON.stringify(instances[key].template.spec)
-                        });
-                    }
-                }
-                window.postMessage({
-                    code: LEGOSDKTOOLMESSAGE.RECEIVE_SDK_OBJECT_ON_PAGE,
-                    ECOM_MA_LEGO: ECOM_MA_LEGO
-                }, '*');
                 break;
 
             case LEGOSDKTOOLMESSAGE.SET_SDK_VALUE_ON_PAGE:

@@ -45,9 +45,9 @@ function bindEvents() {
     // 和popup的交互
     chrome.runtime.onMessage.addListener(function(request) {
         switch (request.code) {
-            case MESSAGE.GET_SDK_OBJECT:
+            case MESSAGE.INIT:
                 // 收到popup初始化sdk对象请求，向页面获取sdk对象
-                window.postMessage({ code: MESSAGE.GET_SDK_OBJECT_ON_PAGE }, '*');
+                window.postMessage({ code: MESSAGE.INIT }, '*');
                 break;
 
             case MESSAGE.SET_SDK_VALUE:
@@ -68,11 +68,20 @@ function bindEvents() {
     window.addEventListener('message', function (e) {
         if (e.data && e.data.code) {
             switch (e.data.code) {
-                case MESSAGE.RECEIVE_SDK_OBJECT_ON_PAGE:
-                    // 获取sdk对象
+                case MESSAGE.RECEIVE_MATERIAL_ON_PAGE:
+                    // 取得material对象
+                    var materials = e.data.materials;
+                    chrome.runtime.sendMessage({
+                        code: MESSAGE.RECEIVE_MATERIAL,
+                        materials: materials
+                    });
+                    break;
+
+                case MESSAGE.RECEIVE_SDK_INFO_ON_PAGE:
+                    // 取得sdk信息
                     var ECOM_MA_LEGO = e.data.ECOM_MA_LEGO;
                     chrome.runtime.sendMessage({
-                        code: MESSAGE.RECEIVE_SDK_OBJECT,
+                        code: MESSAGE.RECEIVE_SDK_INFO,
                         ECOM_MA_LEGO: ECOM_MA_LEGO
                     });
                     break;

@@ -66,7 +66,7 @@ body {
     position: fixed;
     top: 5px;
     height: 19px;
-    width: 500px;
+    width: 600px;
     padding: 5px 0;
     font-size: 16px;
     text-align: center;
@@ -78,9 +78,9 @@ body {
 }
 
 .sdk-tool-container {
-    width: 500px;
+    width: 600px;
     min-height: 300px;
-    max-height: 520px;
+    max-height: 600px;
     overflow-y: auto;
     overflow-x: hidden;
     font-size: 12px;
@@ -118,11 +118,11 @@ body {
     border-top: 1px dashed #cccccc;
 }
 
-.sdk-fieldset-last {
+.fieldset-last {
     margin-bottom: 0;
 }
 
-.sdk-fieldset-last .sdk-separate {
+.fieldset-last .sdk-separate {
     margin-top: 0;
     border: none;
 }
@@ -155,20 +155,21 @@ body {
     margin-bottom: 8px;
 }
 
-.sdk-toggle-get-value {
+.sdk-toggle-get-and-set {
     float: right;
     margin-right: 0;
     background: url(../images/toggle-up.png) no-repeat scroll 0 0;
     -webkit-transition: -webkit-transform .3s;
 }
 
-.sdk-fieldset-toggle .sdk-toggle-get-value {
+.sdk-fieldset-toggle .sdk-toggle-get-and-set {
     -webkit-transform: rotate(180deg);
 }
 
 .sdk-get-value-arrow,
 .sdk-get-value,
-.sdk-set-value {
+.sdk-set-value,
+.sdk-toggle-value-and-spec {
     -webkit-transition: all .3s;
 }
 
@@ -195,6 +196,14 @@ body {
     background: url(../images/compact.png) no-repeat scroll 0 0;
 }
 
+.sdk-toggle-value-and-spec {
+    background: url(../images/spec2value.png) no-repeat scroll 0 0;
+}
+
+.sdk-view-value {
+    background-position: 0 -25px;
+}
+
 .sdk-copy-value {
     background: url(../images/copy.png) no-repeat scroll 0 0;
 }
@@ -208,27 +217,16 @@ body {
 }
 
 .sdk-set-valid-btn {
-    background: url(../images/valid.png) no-repeat scroll 0 0 #ddd;
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.sdk-set-valid-btn:hover,
-.sdk-set-invalid-btn:hover,
-.sdk-set-valid-btn:active
-.sdk-set-invalid-btn:active {
-    background-color: #ddd;
+    background: url(../images/valid.png) no-repeat scroll 0 0;
 }
 
 .sdk-set-invalid-btn {
-    background: url(../images/invalid.png) no-repeat scroll 0 0 #ddd;
-    opacity: 0.4;
-    cursor: not-allowed;
+    background: url(../images/invalid.png) no-repeat scroll 0 0;
 }
 
 .sdk-get-value {
     position: relative;
-    height: 280px;
+    height: 350px;
 }
 
 .sdk-get-value .ace_cursor-layer .ace_cursor {
@@ -253,10 +251,21 @@ body {
 }
 
 .sdk-fieldset-toggle .sdk-set-value {
-    height: 300px;
+    height: 370px;
 }
 
 .sdk-set-value-btn {
     float: right;
     margin-right: 0;
+}
+
+.sdk-icon-not-allowed {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background-color: #ddd;
+}
+
+.sdk-icon-not-allowed:hover,
+.sdk-icon-not-allowed:active {
+    background-color: #ddd;
 }
