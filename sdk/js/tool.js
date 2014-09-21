@@ -118,6 +118,8 @@ var Helper = {
 Helper.waiting(true);
 
 function Popup() {
+    this.datasource = [];
+
     this._setValue = function (editor, value) {
         editor.setValue(value);
         editor.moveCursorTo(0, 0);
@@ -155,48 +157,27 @@ function Popup() {
         return temp;
     };
 
-    this._getAndPaintNameSpaceInfo = function (datasource) {
-        $.each(datasource, function (index, impl) {
-            var templateId = impl.templateId;
-            if (templateId) {
-                var lego = templateId > 20000000
-                    ? 'lego-off'
-                    : 'lego';
-
-                $.ajax(
-                    'http://' + lego + '.baidu.com/data/template/detail',
-                    {
-                        dataType: 'json',
-                        data: {
-                            templateId: templateId
-                        },
-                        header: {
-                            'X-Request-By': 'ERApplication',
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    }
-                ).done(function (data) {
-                    if (data
-                        && data.success !== false
-                        && data.success !== 'false'
-                        && data.result
-                        && data.result.impls
-                    ) {
-                        var ns = data.result.impls[0].ns;
-                        datasource[index].namespace = ns;
-                        var legend = $('legend:eq(' + index + ')');
-                        legend.html(
-                            legend.html()
-                                + ' - ' + templateId
-                                + ' - '
-                                + '<a target="_blank" title="去素材库改spec" href="'
-                                + 'http://' + lego + '.baidu.com/#/lego/template/js/perform/update~id='
-                                    + templateId + '">'
-                                    + ns
-                                + '</a>'
-                        );
-                    }
-                });
+    this._getNameSpaceInfo = function (templateId, domain, callback) {
+        $.ajax(
+            'http://' + domain + '.baidu.com/data/template/detail',
+            {
+                dataType: 'json',
+                data: {
+                    templateId: templateId
+                },
+                header: {
+                    'X-Request-By': 'ERApplication',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }
+        ).done(function (data) {
+            if (data
+                && data.success !== false
+                && data.success !== 'false'
+                && data.result
+                && data.result.impls
+            ) {
+                callback(data.result);
             }
         });
     };
@@ -209,7 +190,7 @@ function sdkPopup() {
     var _editorGet = [];
     var _editorSet = [];
 
-    function _bindEvents(datasource) {
+    this._bindEvents = function (datasource) {
         $('#sdk-tool-main').off(
             'click',
             '.sdk-set-value-btn, .sdk-copy-value, '
@@ -301,9 +282,9 @@ function sdkPopup() {
                 }
             }
         );
-    }
+    };
 
-    function _initAceEditor(datasource) {
+    this._initAceEditor = function (datasource) {
         $('.sdk-fieldset').each(function (index, element) {
             var get = $(element).find('.sdk-get-value')[0];
             var set = $(element).find('.sdk-set-value')[0];
@@ -326,25 +307,50 @@ function sdkPopup() {
             _editorGet.push(jsonEditorGet);
             _editorSet.push(jsonEditorSet);
         });
-    }
+    };
 
-    this.datasource = [];
+    this.setValue = function (value, index) {
+        _editorGet[index].value = value;
+        this._setValue(_editorGet[index], value);
+    };
 
-    this.init = function (ECOM_MA_LEGO) {
-        if (ECOM_MA_LEGO && ECOM_MA_LEGO.length) {
-            this.datasource = ECOM_MA_LEGO;
-            Helper.waiting(true);
-            $.get(chrome.extension.getURL('../templateForSdk.html'), function (data) {
+    this.init = function (datasource, templateUrl) {
+        if (datasource && datasource.length) {
+            this.datasource = datasource;
+            $.get(chrome.extension.getURL(templateUrl), function (data) {
                 var template = data;
-                var length = ECOM_MA_LEGO.length;
+                var length = datasource.length;
                 var tmpl = '';
-                $.each(ECOM_MA_LEGO, function (index, impl) {
+                $.each(datasource, function (index, impl) {
                     tmpl += me._initTemplate(template, index, length, impl);
                 });
                 $('#sdk-tool-main').html(tmpl);
-                me._getAndPaintNameSpaceInfo(ECOM_MA_LEGO);
-                _initAceEditor(ECOM_MA_LEGO);
-                _bindEvents(ECOM_MA_LEGO);
+
+                $.each(data, function (index, impl) {
+                    var templateId = impl.templateId;
+                    if (templateId) {
+                        var domain = templateId > 20000000
+                            ? 'lego-off'
+                            : 'lego';
+                        me._getNameSpaceInfo(templateId, function (data) {
+                            var ns = data.impls[0].ns;
+                            datasource[index].namespace = ns;
+                            var legend = $('legend:eq(' + index + ')');
+                            legend.html(
+                                legend.html()
+                                    + ' - ' + templateId
+                                    + ' - '
+                                    + '<a target="_blank" title="去素材库改spec" href="'
+                                    + 'http://' + domain + '.baidu.com/#/lego/template/js/perform/update~id='
+                                        + templateId + '">'
+                                        + ns
+                                    + '</a>'
+                            );
+                        });
+                    }
+                });
+                me._initAceEditor(datasource);
+                me._bindEvents(datasource);
             });
         }
         else {
@@ -353,20 +359,15 @@ function sdkPopup() {
         }
         Helper.waiting(false);
     };
-
-    this.setValue = function (value, index) {
-        _editorGet[index].value = value;
-        this._setValue(_editorGet[index], value);
-    };
 }
 
 function materialPopup() {
     Popup.call(this);
 
     var me = this;
-    var _editorSet = [];
+    var _editorGet = [];
 
-    var _bindEvents = function () {
+    this._bindEvents = function (datasource) {
         $('#sdk-tool-main').off(
             'click',
             '.material-copy-value, .editor-operation'
@@ -385,9 +386,47 @@ function materialPopup() {
 
     };
 
-    this.init = function (materials) {
-        if (materials && materials.length) {
+    this._initAceEditor = function (datasource) {
+        $('.material-fieldset').each(function (index, element) {
+            var get = $(element).find('.sdk-get-value')[0];
 
+            var jsonEditorGet = new ace.edit(get);
+            jsonEditorGet.session.setMode('ace/mode/json');
+            jsonEditorGet.setTheme('ace/theme/monokai');
+            jsonEditorGet.setValue(datasource[index].value);
+            jsonEditorGet.setReadOnly(true);
+            jsonEditorGet.clearSelection();
+
+            _editorGet.push(jsonEditorGet);
+        });
+    };
+
+    this.init = function (datasource, templateUrl) {
+        if (datasource && datasource.length) {
+            this.datasource = datasource;
+            $.get(chrome.extension.getURL(templateUrl), function (data) {
+                var template = data;
+                var length = datasource.length;
+                var tmpl = '';
+                $.each(datasource, function (index, impl) {
+                    tmpl += me._initTemplate(template, index, length, impl);
+                });
+                $('#sdk-tool-main').html(tmpl);
+
+                $.each(datasource, function (index, impl) {
+                    var templateId = impl.templateId;
+                    if (templateId) {
+                        var domain = templateId > 20000000
+                            ? 'lego-off'
+                            : 'lego';
+                        me._getNameSpaceInfo(templateId, function (data) {
+
+                        });
+                    }
+                });
+                me._initAceEditor(datasource);
+                me._bindEvents(datasource);
+            });
         }
         else {
             $('#sdk-tool-main').hide();
@@ -405,14 +444,14 @@ $(function() {
                 case MESSAGE.RECEIVE_MATERIAL:
                     if (request.materials && request.materials.length) {
                         popup = new materialPopup();
-                        popup.init(request.materials);
+                        popup.init(request.materials, '../templateForMateril.html');
                     }
                     break;
 
                 case MESSAGE.RECEIVE_SDK_INFO:
                     if (request.ECOM_MA_LEGO) {
                         popup = new sdkPopup();
-                        popup.init(request.ECOM_MA_LEGO);
+                        popup.init(request.ECOM_MA_LEGO, '../templateForSdk.html');
                     }
                     break;
 
