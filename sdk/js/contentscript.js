@@ -86,6 +86,12 @@ function bindEvents() {
                     });
                     break;
 
+                case MESSAGE.NODATA_ON_PAGE:
+                    chrome.runtime.sendMessage({
+                        code: MESSAGE.NODATA
+                    });
+                    break;
+
                 case MESSAGE.RECEIVE_ERROR_ON_PAGE:
                     // 页面sdk操作失败消息处理
                     chrome.runtime.sendMessage({

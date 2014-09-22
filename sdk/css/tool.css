@@ -73,14 +73,14 @@ body {
     border: 1px solid white;
     border-radius: 2px;
     box-shadow: 0 0 3px 0 #ccc;
-    opacity: 0.8;
+    opacity: 0.9;
     z-index: 9999999;
 }
 
 .sdk-tool-container {
     width: 600px;
     min-height: 300px;
-    max-height: 600px;
+    max-height: 580px;
     overflow-y: auto;
     overflow-x: hidden;
     font-size: 12px;
@@ -104,17 +104,18 @@ body {
     display: none;
 }
 
-.sdk-fieldset {
+.sdk-fieldset,
+.material-fieldset {
     padding: 0;
     margin: 0;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     border: none;
 }
 
-.sdk-separate {
+.separate {
     height: 1px;
     width: 100%;
-    margin-top: 14px;
+    margin-top: 15px;
     border-top: 1px dashed #cccccc;
 }
 
@@ -122,7 +123,7 @@ body {
     margin-bottom: 0;
 }
 
-.fieldset-last .sdk-separate {
+.fieldset-last .separate {
     margin-top: 0;
     border: none;
 }
@@ -178,7 +179,7 @@ body {
     -webkit-transform: rotate(-90deg);
 }
 
-.sdk-editor-menu {
+.editor-menu {
      -webkit-box-sizing: border-box;
     width: 100%;
     height: 35px;
@@ -187,24 +188,29 @@ body {
 }
 
 .sdk-get-format,
-.sdk-set-format {
+.sdk-set-format,
+.material-get-format {
     background: url(../images/format.png) no-repeat scroll 0 0;
 }
 
 .sdk-get-compact,
-.sdk-set-compact {
+.sdk-set-compact,
+.material-get-compact {
     background: url(../images/compact.png) no-repeat scroll 0 0;
 }
 
-.sdk-toggle-value-and-spec {
+.sdk-toggle-value-and-spec,
+.material-toggle-value-and-spec {
     background: url(../images/spec2value.png) no-repeat scroll 0 0;
 }
 
-.sdk-view-value {
+.sdk-view-value,
+.material-view-value {
     background-position: 0 -25px;
 }
 
-.sdk-copy-value {
+.sdk-copy-value,
+.material-copy-value {
     background: url(../images/copy.png) no-repeat scroll 0 0;
 }
 
@@ -226,10 +232,11 @@ body {
 
 .sdk-get-value {
     position: relative;
-    height: 350px;
+    height: 330px;
 }
 
-.sdk-get-value .ace_cursor-layer .ace_cursor {
+.sdk-get-value .ace_cursor-layer .ace_cursor,
+.material-get-value .ace_cursor-layer .ace_cursor {
     color: #666;
 }
 
@@ -245,13 +252,13 @@ body {
 .sdk-set-value {
     position: relative;
     width: 100%;
-    height: 60px;
+    height: 65px;
     padding: 0;
     margin: 0;
 }
 
 .sdk-fieldset-toggle .sdk-set-value {
-    height: 370px;
+    height: 355px;
 }
 
 .sdk-set-value-btn {
@@ -259,13 +266,37 @@ body {
     margin-right: 0;
 }
 
-.sdk-icon-not-allowed {
+.material-screenshot {
+    display: none;
+    position: absolute;
+    top: 20px;
+    right: 0;
+    max-width: 300px;
+    max-height: 300px;
+    box-shadow: 0 0 3px 1px #ccc;
+    z-index: 3;
+}
+
+.material-preview {
+    position: relative;
+}
+
+.material-preview:hover .material-screenshot {
+    display: inline-block;
+}
+
+.material-get-value {
+    width: 100%;
+    height: 470px;
+}
+
+.icon-not-allowed {
     opacity: 0.4;
     cursor: not-allowed;
     background-color: #ddd;
 }
 
-.sdk-icon-not-allowed:hover,
-.sdk-icon-not-allowed:active {
+.icon-not-allowed:hover,
+.icon-not-allowed:active {
     background-color: #ddd;
 }

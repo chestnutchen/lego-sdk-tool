@@ -13,7 +13,10 @@ window.addEventListener('message', function (e) {
     if (e.data && e.data.code) {
         switch (e.data.code) {
             case LEGOSDKTOOLMESSAGE.INIT:
+                var nodata = true;
+
                 if (window.ECOM_MA_LEGO) {
+                    nodata = false;
                     var ECOM_MA_LEGO = [];
                     if (window.ECOM_MA_LEGO) {
                         var instances = window.ECOM_MA_LEGO.instances;
@@ -38,20 +41,32 @@ window.addEventListener('message', function (e) {
                         var hit = /m([0-9]+)_AD_CONFIG/.exec(key);
                         if (hit) {
                             var mcid = hit[1];
+                            var elem = document.getElementById('m' + mcid + '_canvas');
+                            var oldmcid = elem.getAttribute('oldmcid');
                             var AD_CONFIG = window[key];
                             var RT_CONFIG = window['m' + mcid + '_RT_CONFIG'];
                             materials.push({
-                                mcid: hit[1],
+                                mcid: oldmcid ? oldmcid : mcid,
                                 value: JSON.stringify(AD_CONFIG, null, 4),
                                 templateId: RT_CONFIG.timestamp
                             });
                         }
                     }
+                    if (materials.length) {
+                        nodata = false;
+                        window.postMessage({
+                            code: LEGOSDKTOOLMESSAGE.RECEIVE_MATERIAL_ON_PAGE,
+                            materials: materials
+                        }, '*');
+                    }
+                }
+
+                if (nodata) {
                     window.postMessage({
-                        code: LEGOSDKTOOLMESSAGE.RECEIVE_MATERIAL_ON_PAGE,
-                        materials: materials
+                        code: LEGOSDKTOOLMESSAGE.NODATA_ON_PAGE
                     }, '*');
                 }
+
                 break;
 
             case LEGOSDKTOOLMESSAGE.SET_SDK_VALUE_ON_PAGE:
