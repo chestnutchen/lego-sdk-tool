@@ -137,6 +137,18 @@ function Popup() {
         this._setValue(editor, value);
     };
 
+    this._previous = function (index) {
+        var previous = parseInt(index, 10) - 1;
+        var top = $('fieldset:eq(' + previous + ')').offset().top;
+        $('#sdk-tool-container').scrollTop($('#sdk-tool-container').scrollTop() + top - 10);
+    };
+
+    this._next = function (index) {
+        var next = parseInt(index, 10) + 1;
+        var top = $('fieldset:eq(' + next + ')').offset().top;
+        $('#sdk-tool-container').scrollTop($('#sdk-tool-container').scrollTop() + top - 10);
+    };
+
     this._getNameSpaceInfo = function (templateId, domain) {
         return $.ajax(
             'http://' + domain + '.baidu.com/data/template/detail',
@@ -148,7 +160,8 @@ function Popup() {
                 header: {
                     'X-Request-By': 'ERApplication',
                     'X-Requested-With': 'XMLHttpRequest'
-                }
+                },
+                timeout: 1500
             }
         );
     };
@@ -178,14 +191,14 @@ function sdkPopup() {
             '.sdk-set-value-btn, .sdk-copy-value, '
                 + '.sdk-toggle-value-and-spec, '
                 + '.sdk-toggle-get-and-set, .sdk-paste-value, '
-                + '.editor-operation'
+                + '.editor-operation, .sdk-up, .sdk-down'
         );
         $('#sdk-tool-main').on(
             'click',
             '.sdk-set-value-btn, .sdk-copy-value, '
                 + '.sdk-toggle-value-and-spec, '
                 + '.sdk-toggle-get-and-set, .sdk-paste-value, '
-                + '.editor-operation',
+                + '.editor-operation, .sdk-up, .sdk-down',
             function (e) {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
@@ -262,6 +275,12 @@ function sdkPopup() {
                         button.toggleClass('sdk-view-value');
                     }
                 }
+                else if (button.hasClass('sdk-up')) {
+                    me._previous(index);
+                }
+                else if (button.hasClass('sdk-down')) {
+                    me._next(index);
+                }
             }
         );
     }
@@ -292,17 +311,31 @@ function sdkPopup() {
     }
 
     function _initTemplate(template, index, length, impl) {
+        var templateIdText = impl.templateId
+            ? '<span class="text-separate">|</span>' + impl.templateId
+            : '';
         var temp = template.replace(
             /%legend%/,
-            impl.templateName + ' - ' + impl.templateId
+            impl.templateName + templateIdText
         );
         temp = temp.replace(/%index%/g, index);
+
+        var down = '';
+        var downClass = '';
+        var up = '';
+        var upClass = '';
         if (index === length - 1) {
-            temp = temp.replace(/%fieldset\-last%/, ' fieldset-last');
+            down = 'disabled';
+            downClass = ' icon-not-allowed';
         }
-        else {
-            temp = temp.replace(/%fieldset\-last%/, '');
+        if (index === 0) {
+            up = 'disabled';
+            upClass = ' icon-not-allowed';
         }
+        temp = temp.replace(/%down\-disabled%/, down);
+        temp = temp.replace(/%down\-disabled\-class%/, downClass);
+        temp = temp.replace(/%up\-disabled%/, up);
+        temp = temp.replace(/%up\-disabled\-class%/, upClass);
 
         return temp;
     }
@@ -337,7 +370,7 @@ function sdkPopup() {
                                 var legend = $('legend:eq(' + index + ')');
                                 legend.html(
                                     legend.html()
-                                        + ' - '
+                                        + '<span class="text-separate">|</span>'
                                         + '<a target="_blank" title="去素材库改spec" href="'
                                         + 'http://' + domain + '.baidu.com/#/lego/template/js/perform/update~id='
                                             + templateId + '">'
@@ -369,11 +402,13 @@ function materialPopup() {
     function _bindEvents(datasource) {
         $('#sdk-tool-main').off(
             'click',
-            '.material-copy-value, .material-toggle-value-and-spec, .editor-operation'
+            '.material-copy-value, .material-toggle-value-and-spec, '
+                + '.editor-operation, .material-up, .material-down'
         );
         $('#sdk-tool-main').on(
             'click',
-            '.material-copy-value, .material-toggle-value-and-spec, .editor-operation',
+            '.material-copy-value, .material-toggle-value-and-spec, '
+                + '.editor-operation, .material-up, .material-down',
             function (e) {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
@@ -411,6 +446,12 @@ function materialPopup() {
                         Helper.showTip(message, true);
                     }
                 }
+                else if (button.hasClass('material-up')) {
+                    me._previous(index);
+                }
+                else if (button.hasClass('material-down')) {
+                    me._next(index);
+                }
             }
         );
     }
@@ -434,34 +475,37 @@ function materialPopup() {
         var temp = template.replace(/%index%/g, index);
 
         var legend = impl.templateName
-            ? impl.templateName + ' - ' + impl.mcid + ' - ' + impl.templateId
-            : impl.mcid + ' - ' + impl.templateId;
-        if (impl.ns) {
-            legend
-                += ' - '
-                + '<a target="_blank" title="去素材库改spec" href="'
-                + 'http://' + impl.domain + '.baidu.com/#/lego/template/js/perform/update~id='
-                    + impl.templateId + '">'
-                    + impl.ns
-                + '</a>'
-                + ' - '
-                + '<a class="material-preview" href="###" title="预览图">'
-                    + '<span>预览图</span>'
-                    + '<img class="material-screenshot" src="' + impl.screenshot + '">'
-                + '</a>';
-        }
+            ? impl.templateName + '<span class="text-separate">|</span>' + impl.mcid + '<span class="text-separate">|</span>' + impl.templateId
+            : impl.mcid + '<span class="text-separate">|</span>' + impl.templateId;
         temp = temp.replace(
             /%legend%/,
             legend
         );
 
+        var templateInfo = impl.ns
+            ? ''
+                + '<span class="material-template-info">'
+                    + '<a target="_blank" title="去素材库改spec" href="'
+                    + 'http://' + impl.domain + '.baidu.com/#/lego/template/js/perform/update~id='
+                        + impl.templateId + '">'
+                        + impl.ns
+                    + '</a>'
+                    + '<span class="text-separate">|</span>'
+                    + '<a class="material-preview" href="###">'
+                        + '<span>预览图</span>'
+                        + '<img class="material-screenshot" src="' + impl.screenshot + '">'
+                    + '</a>'
+                + '</span>'
+            : '<span>↓该物料的数据：</span>';
+        temp = temp.replace(/%templateInfo%/, templateInfo);
+
         if (impl.spec) {
-            temp = temp.replace(/%spec-disabled%/, '');
-            temp = temp.replace(/%icon-not-allowed%/, '');
+            temp = temp.replace(/%spec\-disabled%/, '');
+            temp = temp.replace(/%spec\-disabled-class%/, '');
         }
         else {
-            temp = temp.replace(/%spec-disabled%/, 'disabled');
-            temp = temp.replace(/%icon-not-allowed%/, ' icon-not-allowed');
+            temp = temp.replace(/%spec\-disabled%/, 'disabled');
+            temp = temp.replace(/%spec\-disabled\-class%/, ' icon-not-allowed');
         }
 
         return temp;
@@ -491,10 +535,11 @@ function materialPopup() {
                     }
                 });
 
-                $.when.apply($, deferred).done(function () {
+                $.when.apply($, deferred).always(function () {
                     var args = arguments;
                     $.each(args, function(index, mixRes) {
                         var response = mixRes[0];
+                        var impl = datasource[index];
                         if (response
                             && response.success !== false
                             && response.success !== 'false'
@@ -503,26 +548,32 @@ function materialPopup() {
                         ) {
                             var result = response.result;
                             var temp = result.impls[0];
-                            var impl = datasource[index];
                             impl.templateName = temp.name;
                             impl.screenshot = result.screenshot;
                             impl.spec = JSON.stringify(JSON.parse(result.spec), null, 4);
                             impl.ns = temp.ns;
-                            tmpl += _initTemplate(template, index, length, impl);
                         }
+                        tmpl += _initTemplate(template, index, length, impl);
                     });
                     $('#sdk-tool-main').html(tmpl);
-                    $('.material-fieldset:last').addClass('fieldset-last');
+                    $('.material-up:first')
+                        .addClass('icon-not-allowed')
+                        .attr('disabled', 'disabled');
+                    $('.material-down:last')
+                        .addClass('icon-not-allowed')
+                        .attr('disabled', 'disabled');
+                    _initAceEditor(datasource);
                     _initAceEditor(datasource);
                     _bindEvents(datasource);
+                    Helper.waiting(false);
                 });
             });
         }
         else {
             $('#sdk-tool-main').hide();
             $('#sdkNotFound').show();
+            Helper.waiting(false);
         }
-        Helper.waiting(false);
     };
 }
 

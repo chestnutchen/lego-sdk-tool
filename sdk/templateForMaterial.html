@@ -1,11 +1,11 @@
 <fieldset class="material-fieldset">
-    <legend>物料：%legend%</legend>
+    <legend>物料：<span>%legend%</span><span class="material-button-set"><button class="icon-btn material-up" index=%index%></button><button class="icon-btn material-down" index=%index%></button></span></legend>
     <div class="material-get-value-block">
         <p>
-            <span>↓该物料的数据：</span>
+            %templateInfo%
         </p>
         <div class="editor-menu">
-            <button class="material-get-format icon-btn editor-operation" title="格式化" index=%index%></button><button class="material-get-compact icon-btn editor-operation" title="压缩" index=%index%></button><button class="icon-btn material-toggle-value-and-spec%icon-not-allowed%" %spec-disabled% title="查看spec" index="%index%"></button><button class="icon-btn material-copy-value" title="复制" index=%index%></button>
+            <button class="material-get-format icon-btn editor-operation" title="格式化" index=%index%></button><button class="material-get-compact icon-btn editor-operation" title="压缩" index=%index%></button><button class="icon-btn material-toggle-value-and-spec%spec-disabled-class%" %spec-disabled% title="查看spec" index="%index%"></button><button class="icon-btn material-copy-value" title="复制" index=%index%></button>
         </div>
         <div class="material-get-value"></div>
     </div>

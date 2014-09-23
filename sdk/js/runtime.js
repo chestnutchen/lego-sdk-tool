@@ -42,14 +42,16 @@ window.addEventListener('message', function (e) {
                         if (hit) {
                             var mcid = hit[1];
                             var elem = document.getElementById('m' + mcid + '_canvas');
-                            var oldmcid = elem.getAttribute('oldmcid');
-                            var AD_CONFIG = window[key];
-                            var RT_CONFIG = window['m' + mcid + '_RT_CONFIG'];
-                            materials.push({
-                                mcid: oldmcid ? oldmcid : mcid,
-                                value: JSON.stringify(AD_CONFIG, null, 4),
-                                templateId: RT_CONFIG.timestamp
-                            });
+                            if (elem) {
+                                var oldmcid = elem.getAttribute('oldmcid');
+                                var AD_CONFIG = window[key];
+                                var RT_CONFIG = window['m' + mcid + '_RT_CONFIG'];
+                                materials.push({
+                                    mcid: oldmcid ? oldmcid : mcid,
+                                    value: JSON.stringify(AD_CONFIG, null, 4),
+                                    templateId: RT_CONFIG.timestamp
+                                });
+                            }
                         }
                     }
                     if (materials.length) {

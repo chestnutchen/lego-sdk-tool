@@ -86,6 +86,12 @@ body {
     font-size: 12px;
 }
 
+.sdk-tool-container a,
+.sdk-tool-container a:visited {
+    color: #4876FF;
+    text-decoration: none;
+}
+
 .sdk-not-found {
     width: 100%;
     padding: 140px 0;
@@ -112,6 +118,11 @@ body {
     border: none;
 }
 
+.sdk-fieldset:last-of-type,
+.material-fieldset:last-of-type {
+    margin-bottom: 0;
+}
+
 .separate {
     height: 1px;
     width: 100%;
@@ -119,11 +130,8 @@ body {
     border-top: 1px dashed #cccccc;
 }
 
-.fieldset-last {
-    margin-bottom: 0;
-}
-
-.fieldset-last .separate {
+.sdk-fieldset:last-of-type .separate:last-of-type,
+.material-fieldset:last-of-type .separate:last-of-type {
     margin-top: 0;
     border: none;
 }
@@ -132,15 +140,38 @@ body {
     width: 100%;
     line-height: 22px;
     background-color: #fff;
-    color: #000;
+    color: #999;
     font-size: 14px;
     font-weight: bold;
 }
 
-.sdk-tool-container legend a,
-.sdk-tool-container legend a:visited {
-    color: #4876FF;
-    text-decoration: none;
+.sdk-tool-container legend span {
+    color: #000;
+}
+
+.sdk-tool-container .text-separate {
+    margin: 0 7px;
+    color: #ccc;
+}
+
+.sdk-button-set,
+.material-button-set {
+    float: right;
+    width: 25px;
+    margin-right: 10px;
+}
+
+.material-up,
+.sdk-up {
+    background: url(../images/arrow.png) no-repeat scroll 0 0;
+    margin-bottom: 4px;
+}
+
+.material-down,
+.sdk-down {
+    background: url(../images/arrow.png) no-repeat scroll 0 -25px;
+    position: relative;
+    z-index: 1;
 }
 
 .sdk-tool-container pre {
@@ -170,7 +201,8 @@ body {
 .sdk-get-value-arrow,
 .sdk-get-value,
 .sdk-set-value,
-.sdk-toggle-value-and-spec {
+.sdk-toggle-value-and-spec,
+.material-toggle-value-and-spec {
     -webkit-transition: all .3s;
 }
 
@@ -257,8 +289,16 @@ body {
     margin: 0;
 }
 
+.sdk-set-value:last-of-type {
+    height: 80px;
+}
+
 .sdk-fieldset-toggle .sdk-set-value {
     height: 355px;
+}
+
+.sdk-fieldset-toggle .sdk-set-value:last-of-type {
+    height: 370px;
 }
 
 .sdk-set-value-btn {
@@ -266,19 +306,22 @@ body {
     margin-right: 0;
 }
 
+.material-template-info {
+    display: inline-block;
+    position: relative;
+    margin-left: 3em;
+    font-size: 14px;
+}
+
 .material-screenshot {
     display: none;
     position: absolute;
     top: 20px;
-    right: 0;
+    left: 0;
     max-width: 300px;
     max-height: 300px;
     box-shadow: 0 0 3px 1px #ccc;
-    z-index: 3;
-}
-
-.material-preview {
-    position: relative;
+    z-index: 10;
 }
 
 .material-preview:hover .material-screenshot {
@@ -288,6 +331,10 @@ body {
 .material-get-value {
     width: 100%;
     height: 470px;
+}
+
+.material-get-value:last-of-type {
+    height: 484px;
 }
 
 .icon-not-allowed {
