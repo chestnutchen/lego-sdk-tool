@@ -12,12 +12,13 @@
         <h2>LEGO SDK TOOL CONFIG<a target="_blank" class="github" href="https://github.com/chestnutchen/legoSdkTool"><img class="githubPic" src="images/github.png">View On Github</a></h2>
     </header>
     <article>
-        <h3>1. 插件使用</h3>
-        <p>普通用户解读：可以把页面表单中的物料内容复制出来，也可以将物料内容设置到页面表单中去，不需要在页面上一个个输入框填写。适用于素材库做物料、锦囊做物料、实验平台做物料、各种奇葩业务端对接了素材库做物料，如果没看懂，咨询一下神奇的fe们&nbsp;&nbsp;<a href="###" id="check" class="check">或者查看图解</a></p>
+        <h3>1. 插件说明</h3>
+        <p>该插件服务于素材库表单和素材库物料的内容提取和设置，兼容线上线下。只要业务端对接了素材库，均可以使用该插件进行表单填写和查看复制；只要是素材库做的物料，在广告展示页面均可以使用该插件对物料内容进行查看和复制。</a></p>
+        <h3>2. 插件使用</h3>
+        <p>该插件主要用来减少测试物料时繁琐的人工操作，线上物料内容提取等，具体使用方法可咨询我，或者&nbsp;&nbsp;<a href="###" id="check" class="check">查看图解</a></p>
         <img class="pic" id="pic" src="images/illustration.png">
-        <p>资深用户解读：可以复制sdk输出的JSON数据，也可以把JSON设置到sdk表单中去，偷懒必备</p>
-        <h3>2. 插件配置</h3>
-        <p>设置插件有权限的url，逗号分隔，支持换行，支持字符串部分匹配和正则匹配（暂时全集为*.baidu.com）</p>
+        <h3>3. 插件配置</h3>
+        <p>设置插件有权限的url，逗号分隔，支持换行，支持字符串部分匹配和正则匹配（全集为*.baidu.com，若有本地需求，请自行修改host映射到xx.baidu.com即可）</p>
         <div>
             <textarea id="sdkPermission" placeholder="/http:\/\/.*\.baidu\.com/, http://www.baidu.com"></textarea>
         </div>

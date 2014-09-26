@@ -548,7 +548,7 @@ function materialPopup() {
                         ) {
                             var result = response.result;
                             var temp = result.impls[0];
-                            impl.templateName = temp.name;
+                            impl.templateName = result.templateName;
                             impl.screenshot = result.screenshot;
                             impl.spec = JSON.stringify(JSON.parse(result.spec), null, 4);
                             impl.ns = temp.ns;
