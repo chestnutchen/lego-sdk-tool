@@ -13,13 +13,13 @@ var Helper = {
         var isShow = false;
         return function (toShow) {
             if (toShow && !isShow) {
-                $('.sdk-tool-mask').first().show();
-                $('.sdk-tool-waiting').first().show();
+                $('#mask').show();
+                $('#waiting').show();
                 isShow = true;
             }
             else if (!toShow && isShow) {
-                $('.sdk-tool-mask').first().hide();
-                $('.sdk-tool-waiting').first().hide();
+                $('#mask').hide();
+                $('#waiting').hide();
                 isShow = false;
             }
         };
@@ -140,13 +140,13 @@ function Popup() {
     this._previous = function (index) {
         var previous = parseInt(index, 10) - 1;
         var top = $('fieldset:eq(' + previous + ')').offset().top;
-        $('#sdk-tool-container').scrollTop($('#sdk-tool-container').scrollTop() + top - 10);
+        $('#container').scrollTop($('#container').scrollTop() + top - 10);
     };
 
     this._next = function (index) {
         var next = parseInt(index, 10) + 1;
         var top = $('fieldset:eq(' + next + ')').offset().top;
-        $('#sdk-tool-container').scrollTop($('#sdk-tool-container').scrollTop() + top - 10);
+        $('#container').scrollTop($('#container').scrollTop() + top - 10);
     };
 
     this._getNameSpaceInfo = function (templateId, domain) {
@@ -166,8 +166,19 @@ function Popup() {
         );
     };
 
+    this._initMenu = function (datasource) {
+        var tmpl = '';
+        $.each(datasource, function (index, impl) {
+            tmpl += ''
+                + '<li index=' + index + '>'
+                    + (impl.templateName || impl.mcid)
+                + '</li>';
+        });
+        $('#menu ul').html(tmpl).parent().show();
+    };
+
     this.init = function () {
-        $('#sdk-tool-main').hide();
+        $('#main').hide();
         $('#sdkNotFound').show();
         Helper.waiting(false);
     };
@@ -186,19 +197,19 @@ function sdkPopup() {
     };
 
     function _bindEvents(datasource) {
-        $('#sdk-tool-main').off(
+        $('#main').off(
             'click',
             '.sdk-set-value-btn, .sdk-copy-value, '
                 + '.sdk-toggle-value-and-spec, '
                 + '.sdk-toggle-get-and-set, .sdk-paste-value, '
-                + '.editor-operation, .sdk-up, .sdk-down'
+                + '.editor-operation'
         );
-        $('#sdk-tool-main').on(
+        $('#main').on(
             'click',
             '.sdk-set-value-btn, .sdk-copy-value, '
                 + '.sdk-toggle-value-and-spec, '
                 + '.sdk-toggle-get-and-set, .sdk-paste-value, '
-                + '.editor-operation, .sdk-up, .sdk-down',
+                + '.editor-operation',
             function (e) {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
@@ -275,12 +286,6 @@ function sdkPopup() {
                         button.toggleClass('sdk-view-value');
                     }
                 }
-                else if (button.hasClass('sdk-up')) {
-                    me._previous(index);
-                }
-                else if (button.hasClass('sdk-down')) {
-                    me._next(index);
-                }
             }
         );
     }
@@ -350,7 +355,8 @@ function sdkPopup() {
                 $.each(datasource, function (index, impl) {
                     tmpl += _initTemplate(template, index, length, impl);
                 });
-                $('#sdk-tool-main').html(tmpl);
+                me._initMenu(datasource);
+                $('#main').append(tmpl);
 
                 $.each(datasource, function (index, impl) {
                     var templateId = impl.templateId;
@@ -386,10 +392,10 @@ function sdkPopup() {
             });
         }
         else {
-            $('#sdk-tool-main').hide();
+            $('#main').hide();
             $('#sdkNotFound').show();
+            Helper.waiting(false);
         }
-        Helper.waiting(false);
     };
 }
 
@@ -400,15 +406,15 @@ function materialPopup() {
     var _editorGet = [];
 
     function _bindEvents(datasource) {
-        $('#sdk-tool-main').off(
+        $('#main').off(
             'click',
             '.material-copy-value, .material-toggle-value-and-spec, '
-                + '.editor-operation, .material-up, .material-down'
+                + '.editor-operation'
         );
-        $('#sdk-tool-main').on(
+        $('#main').on(
             'click',
             '.material-copy-value, .material-toggle-value-and-spec, '
-                + '.editor-operation, .material-up, .material-down',
+                + '.editor-operation',
             function (e) {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
@@ -445,12 +451,6 @@ function materialPopup() {
                         var message = Helper.parseError(err.message);
                         Helper.showTip(message, true);
                     }
-                }
-                else if (button.hasClass('material-up')) {
-                    me._previous(index);
-                }
-                else if (button.hasClass('material-down')) {
-                    me._next(index);
                 }
             }
         );
@@ -555,14 +555,8 @@ function materialPopup() {
                         }
                         tmpl += _initTemplate(template, index, length, impl);
                     });
-                    $('#sdk-tool-main').html(tmpl);
-                    $('.material-up:first')
-                        .addClass('icon-not-allowed')
-                        .attr('disabled', 'disabled');
-                    $('.material-down:last')
-                        .addClass('icon-not-allowed')
-                        .attr('disabled', 'disabled');
-                    _initAceEditor(datasource);
+                    me._initMenu(datasource);
+                    $('#main').append(tmpl);
                     _initAceEditor(datasource);
                     _bindEvents(datasource);
                     Helper.waiting(false);
@@ -570,7 +564,7 @@ function materialPopup() {
             });
         }
         else {
-            $('#sdk-tool-main').hide();
+            $('#main').hide();
             $('#sdkNotFound').show();
             Helper.waiting(false);
         }

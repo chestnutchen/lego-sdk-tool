@@ -9,11 +9,16 @@
     <script src="js/tool.js"></script>
 </head>
 <body>
-    <div id="sdk-tool-container" class="sdk-tool-container">
-        <div id="sdk-tool-main" class="sdk-tool-main"></div>
-        <div id="tips" class="sdk-tool-tips"></div>
-        <div class="sdk-not-found" id="sdkNotFound">该页面没有lego-sdk或lego-material :-(</div>
+    <div id="container" class="container">
+        <div id="main" class="main">
+            <aside id="menu" class="menu">
+                <div class="arrow"></div>
+                <ul></ul>
+            </aside>
+        </div>
+        <div id="tips" class="tips"></div>
+        <div class="not-found" id="sdkNotFound">该页面没有lego-sdk或lego-material :-(</div>
     </div>
-    <div class="sdk-tool-mask"><div class="sdk-tool-waiting"></div></div>
+    <div class="mask" id="mask"><div id="waiting" class="waiting"></div></div>
 </body>
 </html>
