@@ -1,3 +1,10 @@
+/**
+ * legoSdkTool
+ * @file tool.js
+ * @author chestnut
+ * @description 弹窗页的逻辑
+ */
+
 var popup = {};
 var MESSAGE = {};
 
@@ -166,15 +173,29 @@ function Popup() {
         );
     };
 
+    function _bindEvents() {
+        $('#menu').on('click', 'li', function (e) {
+            var li = $(e.currentTarget);
+            var index = li.attr('index');
+            $('#main').css('top', -581 * index + 'px');
+            $('#menu li.current').removeClass('current');
+            li.addClass('current');
+        });
+    }
+
     this._initMenu = function (datasource) {
         var tmpl = '';
         $.each(datasource, function (index, impl) {
+            var className = index === 0 ? 'class="current"' : '';
+            var img = impl.screenshot ? '<img src="' + impl.screenshot + '" />' : '';
             tmpl += ''
-                + '<li index=' + index + '>'
+                + '<li index="' + index + '" ' + className + '>'
+                    + img
                     + (impl.templateName || impl.mcid)
                 + '</li>';
         });
         $('#menu ul').html(tmpl).parent().show();
+        _bindEvents();
     };
 
     this.init = function () {
@@ -394,8 +415,8 @@ function sdkPopup() {
         else {
             $('#main').hide();
             $('#sdkNotFound').show();
-            Helper.waiting(false);
         }
+        Helper.waiting(false);
     };
 }
 
