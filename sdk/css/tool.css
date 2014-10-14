@@ -257,6 +257,7 @@ body {
 .sdk-fieldset-toggle .sdk-get-value {
   height: 40px;
 }
+.material-raw-value,
 .sdk-raw-value {
   position: absolute;
   left: -999px;
