@@ -43,7 +43,7 @@ function injectRuntimeJs() {
  */
 function bindEvents() {
     // 和popup的交互
-    chrome.runtime.onMessage.addListener(function(request) {
+    chrome.runtime.onMessage.addListener(function (request) {
         switch (request.code) {
             case MESSAGE.INIT:
                 // 收到popup初始化sdk对象请求，向页面获取sdk对象
@@ -121,7 +121,7 @@ function bindEvents() {
     $.get(chrome.extension.getURL('js/message.json'), function (message) {
         MESSAGE = JSON.parse(message);
         // 获取插件权限，注入runtimejs
-        chrome.runtime.sendMessage({ code: MESSAGE.GET_SDK_PERMISSION_RULES }, function(response) {
+        chrome.runtime.sendMessage({ code: MESSAGE.GET_SDK_PERMISSION_RULES }, function (response) {
             var permission = response.permission.split(',');
 
             for (var i = 0, l = permission.length; i < l; i++) {

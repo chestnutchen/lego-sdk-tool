@@ -532,14 +532,44 @@ function materialPopup() {
         return temp;
     }
 
+    function _getDecodedUrl(url, cb) {
+        return $.get(
+            'http://10.95.21.39:8203/hy-tools/click_decoder.php?clkstr=' + url,
+            cb
+        );
+    }
+
     this.init = function (datasource, templateUrl) {
+        var urlPrefix = 'http://bzclk.baidu.com/adrc.php?t=';
+        var prefixLen = urlPrefix.length;
+        function walkAndAdd(object, deferredToDecodes) {
+            $.each(object, function (key, value) {
+                if (typeof value === 'object') {
+                    walkAndAdd(object[key], deferredToDecodes);
+                }
+                else if (typeof value === 'string' && value.indexOf(urlPrefix) === 0) {
+                    deferredToDecodes.push(_getDecodedUrl(value.slice(prefixLen), function (html) {
+                        var regexp = /<br\/>.+extra.+\[(.+?)\]/;
+                        if (html) {
+                            var res = regexp.exec(html);
+                            if (res[1]) {
+                                object[key] = res[1];
+                            }
+                        }
+                    }));
+                }
+            });
+        }
+
         if (datasource && datasource.length) {
             this.datasource = datasource;
             $.get(chrome.extension.getURL(templateUrl), function (html) {
                 var template = html;
                 var length = datasource.length;
                 var tmpl = '';
-                var deferred = [];
+                var deferreds = [];
+                var deferredInfos = [];
+                var deferredToDecodes = [];
                 $.each(datasource, function (index, impl) {
                     var templateId = impl.templateId;
                     if (templateId) {
@@ -547,18 +577,20 @@ function materialPopup() {
                             ? 'lego-off'
                             : 'lego';
                         impl.domain = domain;
-                        deferred.push(
+                        deferredInfos.push(
                             me._getNameSpaceInfo(templateId, domain)
                         );
+                        walkAndAdd(JSON.parse(datasource[index].value), deferredToDecodes);
                     }
                     else {
                         tmpl += _initTemplate(template, index, length, impl);
                     }
                 });
+                deferreds = deferredInfos.concat(deferredToDecodes);
 
-                $.when.apply($, deferred).always(function () {
-                    var args = arguments;
-                    $.each(args, function(index, mixRes) {
+                $.when.apply($, deferreds).always(function () {
+                    var infos = Array.prototype.slice.call(arguments, 0, deferredInfos.length);
+                    $.each(infos, function (index, mixRes) {
                         var response = mixRes[0];
                         var impl = datasource[index];
                         if (response
@@ -595,7 +627,7 @@ function materialPopup() {
 $(function() {
     $.get(chrome.extension.getURL('js/message.json'), function (message) {
         MESSAGE = JSON.parse(message);
-        chrome.runtime.onMessage.addListener(function(request) {
+        chrome.runtime.onMessage.addListener(function (request) {
             switch (request.code) {
                 case MESSAGE.RECEIVE_MATERIAL:
                     if (request.materials && request.materials.length) {
