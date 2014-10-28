@@ -450,7 +450,7 @@ function materialPopup() {
                 else if (button.hasClass('material-toggle-value-and-spec')) {
                     if (datasource[index].spec) {
                         if (button.hasClass('material-view-value')) {
-                            me._setValue(_editorGet[index], datasource[index].value);
+                            me._setValue(_editorGet[index], JSON.stringify(datasource[index].value, null, 4));
                             button.attr('title', '查看spec');
                         }
                         else {
@@ -484,7 +484,7 @@ function materialPopup() {
             var jsonEditorGet = new ace.edit(get);
             jsonEditorGet.session.setMode('ace/mode/json');
             jsonEditorGet.setTheme('ace/theme/monokai');
-            jsonEditorGet.setValue(datasource[index].value);
+            jsonEditorGet.setValue(JSON.stringify(datasource[index].value, null, 4));
             jsonEditorGet.setReadOnly(true);
             jsonEditorGet.clearSelection();
 
@@ -545,11 +545,11 @@ function materialPopup() {
         function walkAndAdd(object, deferredToDecodes) {
             $.each(object, function (key, value) {
                 if (typeof value === 'object') {
-                    walkAndAdd(object[key], deferredToDecodes);
+                    walkAndAdd(value, deferredToDecodes);
                 }
                 else if (typeof value === 'string' && value.indexOf(urlPrefix) === 0) {
                     deferredToDecodes.push(_getDecodedUrl(value.slice(prefixLen), function (html) {
-                        var regexp = /<br\/>.+extra.+\[(.+?)\]/;
+                        var regexp = /<br\/>.+extra.+?\[(.+?)\]/;
                         if (html) {
                             var res = regexp.exec(html);
                             if (res[1]) {
@@ -580,7 +580,7 @@ function materialPopup() {
                         deferredInfos.push(
                             me._getNameSpaceInfo(templateId, domain)
                         );
-                        walkAndAdd(JSON.parse(datasource[index].value), deferredToDecodes);
+                        walkAndAdd(impl, deferredToDecodes);
                     }
                     else {
                         tmpl += _initTemplate(template, index, length, impl);

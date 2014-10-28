@@ -48,7 +48,7 @@ window.addEventListener('message', function (e) {
                                 var RT_CONFIG = window['m' + mcid + '_RT_CONFIG'];
                                 materials.push({
                                     mcid: oldmcid ? oldmcid : mcid,
-                                    value: JSON.stringify(AD_CONFIG, null, 4),
+                                    value: AD_CONFIG, // 之后要利用引用传递的特性，就不stringify了
                                     templateId: RT_CONFIG.timestamp
                                 });
                             }
