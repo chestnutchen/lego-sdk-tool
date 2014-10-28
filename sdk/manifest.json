@@ -1,6 +1,6 @@
 {
     "name": "SDK TOOL",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "icons": {
         "128": "images/icon.png"
     },
@@ -21,7 +21,8 @@
     "options_page": "options.html",
     "content_scripts": [{
         "matches": [
-            "http://*.baidu.com/*"
+            "http://*.baidu.com/*",
+            "https://*.baidu.com/*"
         ],
         "js": [
             "lib/jquery.js",

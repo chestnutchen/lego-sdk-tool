@@ -91,3 +91,11 @@ button:hover {
 button:active {
     background: -webkit-linear-gradient(top, #4090ec, #61a6f5);
 }
+
+.successTip {
+    display: none;
+    position: relative;
+    top: 17px;
+    left: 10px;
+    color: green;
+}
