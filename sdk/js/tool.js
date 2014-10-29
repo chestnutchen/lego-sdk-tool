@@ -540,19 +540,21 @@ function materialPopup() {
     }
 
     this.init = function (datasource, templateUrl) {
-        var urlPrefix = 'http://bzclk.baidu.com/adrc.php?t=';
-        var prefixLen = urlPrefix.length;
+        var urlPrefixBzc = 'http://bzclk.baidu.com/adrc.php?t=';
+        var urlPrefixWWW = 'http://www.baidu.com/adrc.php?t=';
         function walkAndAdd(object, deferredToDecodes) {
             $.each(object, function (key, value) {
                 if (typeof value === 'object') {
                     walkAndAdd(value, deferredToDecodes);
                 }
-                else if (typeof value === 'string' && value.indexOf(urlPrefix) === 0) {
-                    deferredToDecodes.push(_getDecodedUrl(value.slice(prefixLen), function (html) {
+                else if (typeof value === 'string'
+                    && (value.indexOf(urlPrefixBzc) === 0 || value.indexOf(urlPrefixWWW) === 0)
+                ) {
+                    deferredToDecodes.push(_getDecodedUrl(value.slice(value.indexOf('=') + 1), function (html) {
                         var regexp = /<br\/>.+extra.+?\[(.+?)\]/;
                         if (html) {
                             var res = regexp.exec(html);
-                            if (res[1]) {
+                            if (res && res[1]) {
                                 object[key] = res[1];
                             }
                         }
