@@ -36,7 +36,8 @@
     },
     "web_accessible_resources": [
         "js/runtime.js",
-        "js/message.json"
+        "js/message.json",
+        "css/sticky.css"
     ],
     "update_url": "https://github.com/chestnutchen/legoSdkTool/raw/master/updates.xml",
     "manifest_version": 2

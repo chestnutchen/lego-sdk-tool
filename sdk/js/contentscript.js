@@ -28,13 +28,15 @@ function checkPermission(pattern) {
  * 注入runtimejs
  * @ignore
  */
-function injectRuntimeJs() {
-    var input = $('<input type="hidden" id="legoSdkToolMessageJson">');
-    input.val(JSON.stringify(MESSAGE));
+function injectRuntimeJs(styleText) {
+    var messageInput = $('<input type="hidden" id="legoSdkToolMessageJson">');
+    messageInput.val(JSON.stringify(MESSAGE));
+    var styleInput = $('<input type="hidden" id="stickyStyleText">');
+    styleInput.val(styleText);
     var runtimeJs = $('<script>');
     runtimeJs.attr('src', chrome.extension.getURL('js/runtime.js'));
     $('head').append(runtimeJs);
-    $('body').append(input);
+    $('body').append(messageInput).append(styleInput);
 }
 
 /**
@@ -118,8 +120,12 @@ function bindEvents() {
  * 初始化插件在页面上的权限、交互
  */
 (function init() {
-    $.get(chrome.extension.getURL('js/message.json'), function (message) {
-        MESSAGE = JSON.parse(message);
+    $.when(
+        $.get(chrome.extension.getURL('js/message.json')),
+        $.get(chrome.extension.getURL('css/sticky.css'))
+    )
+    .done(function (message, styleText) {
+        MESSAGE = JSON.parse(message[0]);
         // 获取插件权限，注入runtimejs
         chrome.runtime.sendMessage({ code: MESSAGE.GET_SDK_PERMISSION_RULES }, function (response) {
             var permission = response.permission.replace(/(\r\n)|\n|\r/, ',').split(',');
@@ -128,7 +134,7 @@ function bindEvents() {
                 if (permission[i] && checkPermission(permission[i])) {
                     chrome.runtime.sendMessage({ code: MESSAGE.RECEIVE_SDK_PERMISSION });
                     bindEvents();
-                    injectRuntimeJs();
+                    injectRuntimeJs(styleText[0]);
                     break;
                 }
             }

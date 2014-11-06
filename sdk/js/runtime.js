@@ -5,9 +5,115 @@
  * @description 注入页面的js
  */
 
-var input = document.getElementById('legoSdkToolMessageJson');
-var LEGOSDKTOOLMESSAGE = JSON.parse(input.value);
-document.body.removeChild(input);
+var LEGOSDKTOOLMESSAGE;
+var stickyStyleText;
+function initMessage() {
+    var messageInput = document.getElementById('legoSdkToolMessageJson');
+    LEGOSDKTOOLMESSAGE = JSON.parse(messageInput.value);
+    var styleInput = document.getElementById('stickyStyleText');
+    stickyStyleText = styleInput.value;
+    document.body.removeChild(messageInput);
+    document.body.removeChild(styleInput);
+}
+
+function initLegoStickyTool() {
+    var templateList = [];
+
+    function setRight(right) {
+        document.getElementById('legoStickyTool').style.right = right;
+    }
+
+    function createUI() {
+        var style = document.createElement('style');
+        var styleText = document.createTextNode(stickyStyleText);
+        style.appendChild(styleText);
+        document.head.appendChild(style);
+
+        var tool = document.createElement('tool');
+        tool.id = tool.className = 'legoStickyTool';
+
+        // title
+        var toolTitle = document.createElement('div');
+        toolTitle.className = 'legoStickyTool-title';
+        var titleIcon = document.createElement('img');
+        titleIcon.src = 'http://ecma.bdimg.com/adtest/599e5eb3d33e419981a0dad13d903726.png';
+        titleIcon.width = titleIcon.height = '25';
+        toolTitle.appendChild(titleIcon);
+
+        // container
+        var toolContainer = document.createElement('div');
+        toolContainer.className = 'legoStickyTool-container';
+        var toolList = document.createElement('ul');
+        toolList.className = 'legoStickyTool-list';
+        var toolContent = document.createElement('div');
+        toolContent.className = 'legoStickyTool-content';
+
+        // list
+
+
+        // content
+
+        toolContainer.appendChild(toolList);
+        toolContainer.appendChild(toolContent);
+        tool.appendChild(toolTitle);
+        tool.appendChild(toolContainer);
+        document.body.appendChild(tool);
+
+        window.addEventListener('hashchange', function (e) {
+            if (!pattern.test(e.newURL)) {
+                setRight('-325px');
+            }
+            else {
+                setRight('-300px');
+            }
+        });
+
+        tool.addEventListener('mouseleave', function () {
+            setRight('-300px');
+        }, false);
+
+        toolTitle.addEventListener('click', function () {
+            setRight('0');
+        }, false);
+    }
+
+    var items = document.getElementsByClassName('ui-pageableitemlist-item');
+    for (var i = 0, l = items.length; i < l; i++) {
+        var nameDiv = items[i].getElementsByClassName('ellipsis-text')[0];
+        var templateName = nameDiv && nameDiv.innerText;
+        var ul = items[i].getElementsByClassName('list-table-operation')[0];
+        if (ul.childNodes.length === 9) {
+            var href = ul.childNodes[6].childNodes[0].href;
+            var templateId = href.slice(href.indexOf('=') + 1);
+            templateId && templateList.push({
+                elem: items[i],
+                templateName: templateName,
+                templateId: templateId
+            });
+        }
+    }
+
+    if (templateList.length) {
+        createUI();
+    }
+}
+
+function checkReady() {
+    return document.getElementById('listmain');
+}
+
+initMessage();
+var pattern = /http:\/\/lego(:?-off)?\.baidu\.com\/#\/lego\/template\/list/;
+if (pattern.test(location.href)) {
+    setTimeout(function () {
+        if (checkReady()) {
+            initLegoStickyTool();
+        }
+        else {
+            setTimeout(arguments.callee, 500);
+        }
+    }, 500);
+}
 
 window.addEventListener('message', function (e) {
     if (e.data && e.data.code) {
