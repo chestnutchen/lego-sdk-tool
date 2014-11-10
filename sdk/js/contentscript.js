@@ -128,7 +128,7 @@ function bindEvents() {
         MESSAGE = JSON.parse(message[0]);
         // 获取插件权限，注入runtimejs
         chrome.runtime.sendMessage({ code: MESSAGE.GET_SDK_PERMISSION_RULES }, function (response) {
-            var permission = response.permission.replace(/(\r\n)|\n|\r/, ',').split(',');
+            var permission = response.permission.replace(/\r|\n/, ',').split(',');
 
             for (var i = 0, l = permission.length; i < l; i++) {
                 if (permission[i] && checkPermission(permission[i])) {

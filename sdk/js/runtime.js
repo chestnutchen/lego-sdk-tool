@@ -16,17 +16,68 @@ function initMessage() {
     document.body.removeChild(styleInput);
 }
 
+var pattern = /http:\/\/lego(:?-off)?\.baidu\.com\/#\/lego\/template\/list/;
 function initLegoStickyTool() {
     var templateList = [];
+    var selectedTemplates = [];
 
     function setRight(right) {
         document.getElementById('legoStickyTool').style.right = right;
     }
 
+    function createLiCallback(li, i) {
+        return function () {
+            if (selectedTemplates[i]) {
+                delete selectedTemplates[i];
+                li.className = li.className.replace(/item\-selected/, '');
+            }
+            else {
+                selectedTemplates[i] = templateList[i].templateId;
+                li.className += ' item-selected';
+            }
+            if (selectedTemplates.length === templateList.length) {
+                var isAll = true;
+                for (var j = 0, l = selectedTemplates.length; j < l; j++) {
+                    if (!selectedTemplates[j]) {
+                        isAll = false;
+                        break;
+                    }
+                }
+                if (isAll) {
+                    document.getElementById('legoStickyTool-select-all').checked = 'checked';
+                }
+                else {
+                    document.getElementById('legoStickyTool-select-all').checked = '';
+                }
+            }
+        };
+    }
+
+    function selectAll(isSelectAll) {
+        var lis = document.getElementsByClassName('legoStickyTool-list-item');
+        if (isSelectAll) {
+            selectedTemplates = templateList.map(function (template) {
+                return template.templateId;
+            });
+            [].forEach.call(lis, function (li, i) {
+                if (li.className.indexOf('item-selected') === -1) {
+                    li.className += ' item-selected';
+                }
+            });
+        }
+        else {
+            selectedTemplates = [];
+            [].forEach.call(lis, function (li, i) {
+                if (li.className.indexOf('item-selected') !== -1) {
+                    li.className = li.className.replace(' item-selected', '');
+                }
+            });
+        }
+    }
+
     function createUI() {
         var style = document.createElement('style');
-        var styleText = document.createTextNode(stickyStyleText);
-        style.appendChild(styleText);
+        style.innerHTML = stickyStyleText;
         document.head.appendChild(style);
 
         var tool = document.createElement('tool');
@@ -49,10 +100,51 @@ function initLegoStickyTool() {
         toolContent.className = 'legoStickyTool-content';
 
         // list
+        templateList.forEach(function(template, i) {
+            var li = document.createElement('li');
+            li.className = 'legoStickyTool-list-item';
+            var span = document.createElement('span');
+            span.innerText = template.templateName;
+            li.appendChild(span);
+            toolList.appendChild(li);
 
+            li.addEventListener('click', createLiCallback(li, i));
+        });
 
         // content
+        var contentPresentText = document.createElement('p');
+        contentPresentText.className = 'legoStickyTool-present-text';
+        contentPresentText.innerText = '当前选中的样式:';
+        var present = document.createElement('div');
+        present.className = 'legoStickyTool-present';
+        present.innerHTML = '<p id="legoStickyTool-present-none" class="legoStickyTool-present-none">无</p>';
 
+        var operation = document.createElement('div');
+        operation.className = 'legoStickyTool-operation';
+        var leftSide = document.createElement('div');
+        leftSide.className = 'legoStickyTool-operation-left';
+        var selectAllInput = document.createElement('input');
+        selectAllInput.type = 'checkbox';
+        selectAllInput.id = 'legoStickyTool-select-all';
+        var selectAllText = document.createElement('label');
+        selectAllText.className = 'legoStickyTool-select-all-text';
+        selectAllText.setAttribute('for', selectAllInput.id);
+        selectAllText.innerText = '全选';
+        var commitButton = document.createElement('button');
+        commitButton.className = 'legoStickyTool-commit';
+        commitButton.innerText = '提交';
+        var templateIdTextarea = document.createElement('textarea');
+        templateIdTextarea.className = 'legoStickyTool-templateId';
+        templateIdTextarea.placeholder = '可输入额外的templateId，逗号或换行分割';
+
+        leftSide.appendChild(selectAllInput);
+        leftSide.appendChild(selectAllText);
+        leftSide.appendChild(commitButton);
+        operation.appendChild(leftSide);
+        operation.appendChild(templateIdTextarea);
+        toolContent.appendChild(contentPresentText);
+        toolContent.appendChild(present);
+        toolContent.appendChild(operation);
         toolContainer.appendChild(toolList);
         toolContainer.appendChild(toolContent);
         tool.appendChild(toolTitle);
@@ -61,37 +153,41 @@ function initLegoStickyTool() {
 
         window.addEventListener('hashchange', function (e) {
             if (!pattern.test(e.newURL)) {
-                setRight('-325px');
+                setRight('-537px');
             }
             else {
-                setRight('-300px');
+                setRight('-502px');
             }
         });
 
-        tool.addEventListener('mouseleave', function () {
-            setRight('-300px');
-        }, false);
+        // tool.addEventListener('mouseleave', function () {
+        //     setRight('-502px');
+        // }, false);
 
         toolTitle.addEventListener('click', function () {
             setRight('0');
         }, false);
+
+        selectAllInput.addEventListener('change', function () {
+            this.checked ? selectAll(true) : selectAll(false);
+        });
     }
 
     var items = document.getElementsByClassName('ui-pageableitemlist-item');
-    for (var i = 0, l = items.length; i < l; i++) {
-        var nameDiv = items[i].getElementsByClassName('ellipsis-text')[0];
+    [].forEach.call(items, function (item, i) {
+        var nameDiv = item.getElementsByClassName('ellipsis-text')[0];
         var templateName = nameDiv && nameDiv.innerText;
-        var ul = items[i].getElementsByClassName('list-table-operation')[0];
+        var ul = item.getElementsByClassName('list-table-operation')[0];
         if (ul.childNodes.length === 9) {
             var href = ul.childNodes[6].childNodes[0].href;
             var templateId = href.slice(href.indexOf('=') + 1);
             templateId && templateList.push({
-                elem: items[i],
+                elem: item,
                 templateName: templateName,
                 templateId: templateId
             });
         }
-    }
+    });
 
     if (templateList.length) {
         createUI();
@@ -103,7 +199,6 @@ function checkReady() {
 }
 
 initMessage();
-var pattern = /http:\/\/lego(:?-off)?\.baidu\.com\/#\/lego\/template\/list/;
 if (pattern.test(location.href)) {
     setTimeout(function () {
         if (checkReady()) {

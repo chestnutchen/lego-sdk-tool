@@ -42,12 +42,12 @@ var Helper = {
 
         function _setColor(isErr) {
             if (isErr) {
-               $('#tips').css('color', Helper.colors.invalid);
-               $('#tips').css('background-color', Helper.colors.warning);
+                $('#tips').css('color', Helper.colors.invalid);
+                $('#tips').css('background-color', Helper.colors.warning);
             }
             else {
-               $('#tips').css('color', Helper.colors.valid);
-               $('#tips').css('background-color', Helper.colors.good);
+                $('#tips').css('color', Helper.colors.valid);
+                $('#tips').css('background-color', Helper.colors.good);
             }
         }
 
@@ -116,7 +116,7 @@ var Helper = {
     },
 
     sendMessage: function (data, callback) {
-        chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
+        chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
             chrome.tabs.sendMessage(tabs[0].id, data, callback);
         });
     }
@@ -205,7 +205,7 @@ function Popup() {
     };
 }
 
-function sdkPopup() {
+function SdkPopup() {
     Popup.call(this);
 
     var me = this;
@@ -248,7 +248,7 @@ function sdkPopup() {
                     });
                 }
                 else if (button.hasClass('sdk-copy-value')) {
-                    $('.sdk-raw-value:eq(' + index +')')
+                    $('.sdk-raw-value:eq(' + index + ')')
                         .val(_editorGet[index].getValue())
                         .select();
                     document.execCommand('copy');
@@ -257,7 +257,7 @@ function sdkPopup() {
                 }
                 else if (button.hasClass('sdk-paste-value')) {
                     _editorSet[index].setValue('');
-                    var rawValueTextarea = $('.sdk-set-value .ace_text-input:eq(' + index +')');
+                    var rawValueTextarea = $('.sdk-set-value .ace_text-input:eq(' + index + ')');
                     rawValueTextarea.select();
                     document.execCommand('paste');
 
@@ -281,7 +281,7 @@ function sdkPopup() {
                     }
                 }
                 else if (button.hasClass('sdk-toggle-get-and-set')) {
-                    var target = $('.sdk-fieldset:eq(' + index +')');
+                    var target = $('.sdk-fieldset:eq(' + index + ')');
                     target.hasClass('sdk-fieldset-toggle')
                         ? button.attr('title', '收起')
                         : button.attr('title', '展开');
@@ -420,7 +420,7 @@ function sdkPopup() {
     };
 }
 
-function materialPopup() {
+function MaterialPopup() {
     Popup.call(this);
 
     var me = this;
@@ -440,7 +440,7 @@ function materialPopup() {
                 var button = $(e.currentTarget);
                 var index = button.attr('index');
                 if (button.hasClass('material-copy-value')) {
-                    $('.material-raw-value:eq(' + index +')')
+                    $('.material-raw-value:eq(' + index + ')')
                         .val(_editorGet[index].getValue())
                         .select();
                     document.execCommand('copy');
@@ -496,7 +496,8 @@ function materialPopup() {
         var temp = template.replace(/%index%/g, index);
 
         var legend = impl.templateName
-            ? impl.templateName + '<span class="text-separate">|</span>' + impl.mcid + '<span class="text-separate">|</span>' + impl.templateId
+            ? impl.templateName + '<span class="text-separate">|</span>' + impl.mcid
+                + '<span class="text-separate">|</span>' + impl.templateId
             : impl.mcid + '<span class="text-separate">|</span>' + impl.templateId;
         temp = temp.replace(
             /%legend%/,
@@ -633,14 +634,14 @@ $(function() {
             switch (request.code) {
                 case MESSAGE.RECEIVE_MATERIAL:
                     if (request.materials && request.materials.length) {
-                        popup = new materialPopup();
+                        popup = new MaterialPopup();
                         popup.init(request.materials, '../templateForMaterial.html');
                     }
                     break;
 
                 case MESSAGE.RECEIVE_SDK_INFO:
                     if (request.ECOM_MA_LEGO) {
-                        popup = new sdkPopup();
+                        popup = new SdkPopup();
                         popup.init(request.ECOM_MA_LEGO, '../templateForSdk.html');
                     }
                     break;
@@ -670,6 +671,6 @@ $(function() {
                     break;
             }
         });
-        Helper.sendMessage({ code: MESSAGE.INIT });
+        Helper.sendMessage({code: MESSAGE.INIT});
     });
 });
