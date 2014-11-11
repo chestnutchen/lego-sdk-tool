@@ -27,28 +27,21 @@ function initLegoStickyTool() {
 
     function createLiCallback(li, i) {
         return function () {
-            if (selectedTemplates[i]) {
-                delete selectedTemplates[i];
+            var templateId = templateList[i].templateId;
+            var index = selectedTemplates.indexOf(templateId);
+            if (index !== -1) {
+                selectedTemplates.splice(index, 1);
                 li.className = li.className.replace(/item\-selected/, '');
             }
             else {
-                selectedTemplates[i] = templateList[i].templateId;
+                selectedTemplates.push(templateId);
                 li.className += ' item-selected';
             }
             if (selectedTemplates.length === templateList.length) {
-                var isAll = true;
-                for (var j = 0, l = selectedTemplates.length; j < l; j++) {
-                    if (!selectedTemplates[j]) {
-                        isAll = false;
-                        break;
-                    }
-                }
-                if (isAll) {
-                    document.getElementById('legoStickyTool-select-all').checked = 'checked';
-                }
-                else {
-                    document.getElementById('legoStickyTool-select-all').checked = '';
-                }
+                document.getElementById('legoStickyTool-select-all').checked = 'checked';
+            }
+            else {
+                document.getElementById('legoStickyTool-select-all').checked = '';
             }
         };
     }
@@ -75,8 +68,8 @@ function initLegoStickyTool() {
         }
     }
 
-    function commitToUpdate() {
-
+    function commitToUpdate(templateIds) {
+        console.log(templateIds);
     }
 
     function createUI() {
@@ -177,15 +170,19 @@ function initLegoStickyTool() {
         });
 
         commitButton.addEventListener('click', function () {
-            var ids = templateIdTextarea.value.replace(/(\r\n)|\r|\n/g, ',').split(',');
-            ids.forEach(function (id, i) {
-                if (selectedTemplates.indexOf(id) !== -1) {
-                    ids.splice(i, 1);
-                }
-            });
+            var idString = templateIdTextarea.value.replace(/(\r\n)|\r|\n/g, ',');
+            var ids = [];
+            if (idString) {
+                ids = idString.split(',');
+                ids.forEach(function (id, i) {
+                    if (selectedTemplates.indexOf(id) !== -1) {
+                        ids.splice(i, 1);
+                    }
+                });
+            }
             var templateIds = selectedTemplates.concat(ids);
-            commitToUpdate(templateIds);
-        });
+            templateIds.length > 0 && commitToUpdate(templateIds);
+        }, false);
     }
 
     var items = document.getElementsByClassName('ui-pageableitemlist-item');
