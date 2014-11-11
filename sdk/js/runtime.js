@@ -75,6 +75,10 @@ function initLegoStickyTool() {
         }
     }
 
+    function commitToUpdate() {
+
+    }
+
     function createUI() {
         var style = document.createElement('style');
         style.innerHTML = stickyStyleText;
@@ -134,7 +138,7 @@ function initLegoStickyTool() {
         commitButton.className = 'legoStickyTool-commit';
         commitButton.innerText = '提交';
         var templateIdTextarea = document.createElement('textarea');
-        templateIdTextarea.className = 'legoStickyTool-templateId';
+        templateIdTextarea.id = templateIdTextarea.className = 'legoStickyTool-templateId';
         templateIdTextarea.placeholder = '可输入额外的templateId，逗号或换行分割';
 
         leftSide.appendChild(selectAllInput);
@@ -170,6 +174,17 @@ function initLegoStickyTool() {
 
         selectAllInput.addEventListener('change', function () {
             this.checked ? selectAll(true) : selectAll(false);
+        });
+
+        commitButton.addEventListener('click', function () {
+            var ids = templateIdTextarea.value.replace(/(\r\n)|\r|\n/g, ',').split(',');
+            ids.forEach(function (id, i) {
+                if (selectedTemplates.indexOf(id) !== -1) {
+                    ids.splice(i, 1);
+                }
+            });
+            var templateIds = selectedTemplates.concat(ids);
+            commitToUpdate(templateIds);
         });
     }
 

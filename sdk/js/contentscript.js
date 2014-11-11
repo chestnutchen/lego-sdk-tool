@@ -9,23 +9,22 @@ var MESSAGE = {};
 
 /**
  * 权限校验方法
- * @param  {string|regexp} pattern
- * @return {boolean}
+ * @param  {(string|regexp)} pattern 选项页填写的规则
+ * @return {boolean} 是否校验通过
  */
 function checkPermission(pattern) {
     var url = location.href;
     pattern = pattern.replace(/(?:^\s+)|(?:\s+$)/, '');
-    if (pattern.match('\/.*\/')){
+    if (pattern.match('\/.*\/')) {
         pattern = new RegExp(pattern.slice(1, pattern.length - 1));
         return pattern.test(url);
     }
-    else {
-        return url.indexOf('pattern') > -1;
-    }
+    return url.indexOf('pattern') > -1;
 }
 
 /**
  * 注入runtimejs
+ * @param {string} styleText legoStickyTool的css代码
  * @ignore
  */
 function injectRuntimeJs(styleText) {
@@ -128,7 +127,7 @@ function bindEvents() {
         MESSAGE = JSON.parse(message[0]);
         // 获取插件权限，注入runtimejs
         chrome.runtime.sendMessage({ code: MESSAGE.GET_SDK_PERMISSION_RULES }, function (response) {
-            var permission = response.permission.replace(/\r|\n/, ',').split(',');
+            var permission = response.permission.replace(/(\r\n)|\r|\n/g, ',').split(',');
 
             for (var i = 0, l = permission.length; i < l; i++) {
                 if (permission[i] && checkPermission(permission[i])) {
