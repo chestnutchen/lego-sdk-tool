@@ -17,31 +17,85 @@ function initMessage() {
 }
 
 var pattern = /http:\/\/lego(:?-off)?\.baidu\.com\/#\/lego\/template\/list/;
+// TODO: 缺个遮罩层
 function initLegoStickyTool() {
     var templateList = [];
+    var templateListByIndex = {};
     var selectedTemplates = [];
 
     function setRight(right) {
         document.getElementById('legoStickyTool').style.right = right;
     }
 
-    function createLiCallback(li, i) {
+    var getCard = (function () {
+        var store = {};
+        return function (url, templateId) {
+            if (store[templateId]) {
+                return store[templateId];
+            }
+            var card = document.createElement('div');
+            card.id = 'legoStickyTool-style-card-' + templateId;
+            card.className = 'legoStickyTool-style-card';
+            var container = document.createElement('div');
+            container.className = 'legoStickyTool-style-card-img-con';
+            var img = document.createElement('img');
+            img.src = url;
+            var label = document.createElement('label');
+            label.innerText = templateId;
+            container.appendChild(img);
+            card.appendChild(container);
+            card.appendChild(label);
+            store[templateId] = card;
+            return card;
+        };
+    })();
+
+    function addCard(card) {
+        document.getElementById('legoStickyTool-present').appendChild(card);
+    }
+
+    function removeCard(card) {
+        document.getElementById('legoStickyTool-present').removeChild(card);
+    }
+
+    function showNoCardTips() {
+        document.getElementById('legoStickyTool-present-none').style.display = 'block';
+    }
+
+    function hideNoCardTips() {
+        document.getElementById('legoStickyTool-present-none').style.display = 'none';
+    }
+
+    function checkSelectAll() {
+        document.getElementById('legoStickyTool-select-all').checked = 'checked';
+    }
+
+    function uncheckSelectAll() {
+        document.getElementById('legoStickyTool-select-all').checked = '';
+    }
+
+    function createLiCallback(li, templateId, screenshot) {
         return function () {
-            var templateId = templateList[i].templateId;
             var index = selectedTemplates.indexOf(templateId);
             if (index !== -1) {
                 selectedTemplates.splice(index, 1);
                 li.className = li.className.replace(/item\-selected/, '');
+                removeCard(getCard(screenshot, templateId));
+                if (selectedTemplates.length === 0) {
+                    showNoCardTips();
+                }
             }
             else {
                 selectedTemplates.push(templateId);
                 li.className += ' item-selected';
+                addCard(getCard(screenshot, templateId));
+                hideNoCardTips();
             }
             if (selectedTemplates.length === templateList.length) {
-                document.getElementById('legoStickyTool-select-all').checked = 'checked';
+                checkSelectAll();
             }
             else {
-                document.getElementById('legoStickyTool-select-all').checked = '';
+                uncheckSelectAll();
             }
         };
     }
@@ -55,8 +109,12 @@ function initLegoStickyTool() {
             [].forEach.call(lis, function (li, i) {
                 if (li.className.indexOf('item-selected') === -1) {
                     li.className += ' item-selected';
+                    var screenshot = templateList[i].screenshot;
+                    var templateId = templateList[i].templateId;
+                    addCard(getCard(screenshot, templateId));
                 }
             });
+            hideNoCardTips();
         }
         else {
             selectedTemplates = [];
@@ -65,11 +123,142 @@ function initLegoStickyTool() {
                     li.className = li.className.replace(' item-selected', '');
                 }
             });
+            document.getElementById('legoStickyTool-present').innerHTML
+                = '<p id="legoStickyTool-present-none" class="legoStickyTool-present-none">无</p>';
+            showNoCardTips();
         }
     }
 
     function commitToUpdate(templateIds) {
-        console.log(templateIds);
+        var failure = {};
+
+        function next(templateId, status, step, url, data, response) {
+            if (response && (response.success === true || response.success === 'true')) {
+                var result = response.result;
+                if (step === 1) {
+                    data[2] = [
+                        'templateId=' + templateId,
+                        'flags=' + JSON.stringify(result.flags),
+                        'impls=' + JSON.stringify(result.impls),
+                        'spec=' + result.spec,
+                        'objectVersion=' + result.objectVersion
+                    ].join('&');
+                }
+                else if (step === 2 && status !== 'RELEASED') {
+                    return;
+                }
+
+                if (step < 3) {
+                    walk(templateId, status, step + 1, url, data);
+                }
+            }
+            else {
+                // 重试一次
+                if (!failure[templateId]) {
+                    walk(templateId, status, step, url, data);
+                    failure[templateId] = {
+                        templateId: templateId,
+                        message: response.message
+                    };
+                }
+                else {
+                    // TODO: 提示没有更新成功
+                    switch (step) {
+                        case 0:
+                            break;
+
+                        case 1:
+                            break;
+
+                        case 2:
+                            break;
+
+                        case 3:
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+        }
+
+        function walk(templateId, status, step, url, data) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 304)) {
+                    next(templateId, status, step, url, data, JSON.parse(xhr.responseText));
+                }
+            };
+            xhr.open('post', url[step]);
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+            xhr.send(data[step]);
+        }
+
+        templateIds.forEach(function (templateId, i) {
+            var apps = templateListByIndex[templateId].apps;
+            var objectVersion = templateListByIndex[templateId].objectVersion;
+            var newObjectVersion = parseInt(objectVersion, 10) + 1;
+            var status = templateListByIndex[templateId].status;
+            var step = 0;
+            var url = [
+                'http://lego-off.baidu.com/data/template/disable',
+                'http://lego-off.baidu.com/data/template/detail',
+                'http://lego-off.baidu.com/data/template/impls/submit',
+                'http://lego-off.baidu.com/data/template/publish'
+            ];
+            var data = [
+                'templateId=' + templateId + '&objectVersion=' + objectVersion,
+                'templateId=' + templateId,
+                null,
+                'apps=' + apps + '&templateId=' + templateId + '&objectVersion' + newObjectVersion
+            ];
+
+            if (status === 'RELEASED') {
+                walk(templateId, status, step, url, data);
+            }
+            else {
+                walk(templateId, status, step + 1, url, data);
+            }
+        });
+    }
+
+    function collectList(items) {
+        templateList = [];
+        templateListByIndex = {};
+        items.forEach(function (item, i) {
+            var templateId = item.templateId;
+            if (templateId && item.templateType === 'JS') {
+                var store = {
+                    templateName: item.templateName,
+                    templateId: templateId,
+                    screenshot: item.screenshot,
+                    apps: JSON.stringify(item.apps),
+                    status: item.status,
+                    objectVersion: item.objectVersion
+                };
+                templateList.push(store);
+                templateListByIndex[templateId] = store;
+            }
+        });
+    }
+
+    function getNewList(cb) {
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && (xhr.status === 200 || xhr.status === 304)) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.success === true || response.success === 'true') {
+                    collectList(response.page.result);
+                    cb();
+                }
+            }
+        };
+        xhr.open('post', 'http://lego-off.baidu.com/data/template/list');
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        var index = location.href.indexOf('~');
+        var param = location.href.slice(index + 1);
+        xhr.send(param);
     }
 
     function createUI() {
@@ -98,6 +287,8 @@ function initLegoStickyTool() {
 
         // list
         templateList.forEach(function(template, i) {
+            var templateId = template.templateId;
+            var screenshot = template.screenshot;
             var li = document.createElement('li');
             li.className = 'legoStickyTool-list-item';
             var span = document.createElement('span');
@@ -105,7 +296,7 @@ function initLegoStickyTool() {
             li.appendChild(span);
             toolList.appendChild(li);
 
-            li.addEventListener('click', createLiCallback(li, i));
+            li.addEventListener('click', createLiCallback(li, templateId, screenshot));
         });
 
         // content
@@ -113,7 +304,7 @@ function initLegoStickyTool() {
         contentPresentText.className = 'legoStickyTool-present-text';
         contentPresentText.innerText = '当前选中的样式:';
         var present = document.createElement('div');
-        present.className = 'legoStickyTool-present';
+        present.id = present.className = 'legoStickyTool-present';
         present.innerHTML = '<p id="legoStickyTool-present-none" class="legoStickyTool-present-none">无</p>';
 
         var operation = document.createElement('div');
@@ -154,12 +345,13 @@ function initLegoStickyTool() {
             }
             else {
                 setRight('-502px');
+                getNewList();
             }
         });
 
-        // tool.addEventListener('mouseleave', function () {
-        //     setRight('-502px');
-        // }, false);
+        tool.addEventListener('mouseleave', function () {
+            setRight('-502px');
+        }, false);
 
         toolTitle.addEventListener('click', function () {
             setRight('0');
@@ -185,21 +377,8 @@ function initLegoStickyTool() {
         }, false);
     }
 
-    var items = document.getElementsByClassName('ui-pageableitemlist-item');
-    [].forEach.call(items, function (item, i) {
-        var nameDiv = item.getElementsByClassName('ellipsis-text')[0];
-        var templateName = nameDiv && nameDiv.innerText;
-        var ul = item.getElementsByClassName('list-table-operation')[0];
-        if (ul.childNodes.length === 9) {
-            var href = ul.childNodes[6].childNodes[0].href;
-            var templateId = href.slice(href.indexOf('=') + 1);
-            templateId && templateList.push({
-                elem: item,
-                templateName: templateName,
-                templateId: templateId
-            });
-        }
-    });
+    var items = ui.util.get('list')._dataCache.result;
+    collectList(items);
 
     if (templateList.length) {
         createUI();
@@ -207,7 +386,7 @@ function initLegoStickyTool() {
 }
 
 function checkReady() {
-    return document.getElementById('listmain');
+    return ui.util.get('list');
 }
 
 initMessage();
