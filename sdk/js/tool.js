@@ -543,23 +543,33 @@ function MaterialPopup() {
     this.init = function (datasource, templateUrl) {
         var urlPrefixBzc = 'http://bzclk.baidu.com/adrc.php?t=';
         var urlPrefixWWW = 'http://www.baidu.com/adrc.php?t=';
-        function walkAndAdd(object, deferredToDecodes) {
+        var posRegExp = /<br\/>.+src_id.+?([0-9]{1,3})/;
+        var pos = [];
+        function walkAndAdd(object, deferredToDecodes, index) {
             $.each(object, function (key, value) {
                 if (typeof value === 'object') {
-                    walkAndAdd(value, deferredToDecodes);
+                    walkAndAdd(value, deferredToDecodes, index);
                 }
                 else if (typeof value === 'string'
                     && (value.indexOf(urlPrefixBzc) === 0 || value.indexOf(urlPrefixWWW) === 0)
                 ) {
-                    deferredToDecodes.push(_getDecodedUrl(value.slice(value.indexOf('=') + 1), function (html) {
-                        var regexp = /<br\/>.+extra.+?\[(.+?)\]/;
-                        if (html) {
-                            var res = regexp.exec(html);
-                            if (res && res[1]) {
-                                object[key] = res[1];
+                    deferredToDecodes.push(
+                        _getDecodedUrl(value.slice(value.indexOf('=') + 1), function (html) {
+                            var urlRegExp = /<br\/>.+extra.+?\[(.+?)\]/;
+                            if (!pos[index]) {
+                                var posRegExpRes = posRegExp.exec(html);
+                                if (posRegExpRes && posRegExpRes[1]) {
+                                    pos[index] = posRegExpRes[1];
+                                }
+                            }
+                            if (html) {
+                                var urlRes = urlRegExp.exec(html);
+                                if (urlRes && urlRes[1]) {
+                                    object[key] = urlRes[1];
+                                }
                             }
                         }
-                    }));
+                    ));
                 }
             });
         }
@@ -569,7 +579,6 @@ function MaterialPopup() {
             $.get(chrome.extension.getURL(templateUrl), function (html) {
                 var template = html;
                 var length = datasource.length;
-                var tmpl = '';
                 var deferreds = [];
                 var deferredInfos = [];
                 var deferredToDecodes = [];
@@ -583,10 +592,10 @@ function MaterialPopup() {
                         deferredInfos.push(
                             me._getNameSpaceInfo(templateId, domain)
                         );
-                        walkAndAdd(impl, deferredToDecodes);
+                        walkAndAdd(impl, deferredToDecodes, index);
                     }
                     else {
-                        tmpl += _initTemplate(template, index, length, impl);
+                        impl.tmpl = _initTemplate(template, index, length, impl);
                     }
                 });
                 deferreds = deferredInfos.concat(deferredToDecodes);
@@ -604,12 +613,25 @@ function MaterialPopup() {
                         ) {
                             var result = response.result;
                             var temp = result.impls[0];
+                            var commentRegExp = /\/\*[\S\s]+?\*\//g;
                             impl.templateName = result.templateName;
                             impl.screenshot = result.screenshot;
+                            result.spec = result.spec.replace(commentRegExp, '');
                             impl.spec = JSON.stringify(JSON.parse(result.spec), null, 4);
                             impl.ns = temp.ns;
+                            if (pos[index] && pos[index] === "119") {
+                                impl.priority = 1;
+                            }
                         }
-                        tmpl += _initTemplate(template, index, length, impl);
+                        impl.tmpl = _initTemplate(template, index, length, impl);
+                    });
+
+                    datasource.sort(function (v1, v2) {
+                        return v1.priority ? 0 : 1;
+                    });
+                    var tmpl = '';
+                    datasource.forEach(function (impl, index) {
+                        tmpl += impl.tmpl;
                     });
                     me._initMenu(datasource);
                     $('#main').append(tmpl);
