@@ -16,12 +16,15 @@ function initMessage() {
     document.body.removeChild(styleInput);
 }
 
-var pattern = /http:\/\/lego(:?-off)?\.baidu\.com\/#\/lego\/template\/list/;
+var mainPattern = /http:\/\/lego(:?-off)?\.baidu\.com/;
+var listPattern = /http:\/\/lego(:?-off)?\.baidu\.com\/#\/lego\/template\/list/;
 // TODO: 缺个遮罩层
 function initLegoStickyTool() {
     var templateList = [];
     var templateListByIndex = {};
     var selectedTemplates = [];
+    var posShow = '-502px';
+    var posHide = '-537px';
 
     function setRight(right) {
         document.getElementById('legoStickyTool').style.right = right;
@@ -252,12 +255,17 @@ function initLegoStickyTool() {
                     collectList(response.page.result);
                     cb();
                 }
+                else {
+                    console.log(response);
+                }
             }
         };
         xhr.open('post', 'http://lego-off.baidu.com/data/template/list');
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         var index = location.href.indexOf('~');
-        var param = location.href.slice(index + 1);
+        var param = index !== -1
+            ? location.href.slice(index + 1).replace(/(page)|(order)/g, 'page.$1$2')
+            : 'status=&keyword=&creator=&templateId=&appId=&tags=[]&page.pageSize=30&page.pageNo=1&page.orderBy=&page.order=';
         xhr.send(param);
     }
 
@@ -266,6 +274,7 @@ function initLegoStickyTool() {
         style.innerHTML = stickyStyleText;
         document.head.appendChild(style);
 
+        // 手误搞了个自定义标签，留着好了
         var tool = document.createElement('tool');
         tool.id = tool.className = 'legoStickyTool';
 
@@ -340,12 +349,17 @@ function initLegoStickyTool() {
         document.body.appendChild(tool);
 
         window.addEventListener('hashchange', function (e) {
-            if (!pattern.test(e.newURL)) {
-                setRight('-537px');
+            if (!listPattern.test(e.newURL)) {
+                setRight(posHide);
             }
             else {
-                setRight('-502px');
-                getNewList();
+                setRight(posShow);
+                getNewList(function () {
+                    if (templateList.length) {
+                        document.body.removeChild(tool);
+                        createUI();
+                    }
+                });
             }
         });
 
@@ -377,28 +391,16 @@ function initLegoStickyTool() {
         }, false);
     }
 
-    var items = ui.util.get('list')._dataCache.result;
-    collectList(items);
-
-    if (templateList.length) {
-        createUI();
-    }
-}
-
-function checkReady() {
-    return ui.util.get('list');
+    getNewList(function () {
+        if (templateList.length) {
+            createUI();
+        }
+    });
 }
 
 initMessage();
-if (pattern.test(location.href)) {
-    setTimeout(function () {
-        if (checkReady()) {
-            initLegoStickyTool();
-        }
-        else {
-            setTimeout(arguments.callee, 500);
-        }
-    }, 500);
+if (mainPattern.test(location.href)) {
+    initLegoStickyTool();
 }
 
 window.addEventListener('message', function (e) {
