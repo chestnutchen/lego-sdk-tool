@@ -140,13 +140,11 @@ function initLegoStickyTool() {
             if (response && (response.success === true || response.success === 'true')) {
                 var result = response.result;
                 if (step === 1) {
-                    data[2] = [
-                        'templateId=' + templateId,
-                        'flags=' + JSON.stringify(result.flags),
-                        'impls=' + JSON.stringify(result.impls),
-                        'spec=' + result.spec,
-                        'objectVersion=' + result.objectVersion
-                    ].join('&');
+                    data[2] = 'templateId=' + templateId
+                        + (result.flags ? '&flags=' + encodeURIComponent(JSON.stringify(result.flags)) : '')
+                        + '&impls=' + encodeURIComponent(JSON.stringify(result.impls))
+                        + '&spec=' + encodeURIComponent(result.spec)
+                        + '&objectVersion=' + result.objectVersion;
                 }
                 else if (step === 2 && status !== 'RELEASED') {
                     return;
@@ -157,8 +155,14 @@ function initLegoStickyTool() {
                 }
             }
             else {
-                // 重试一次
-                if (!failure[templateId]) {
+                // 已经被人操作过，跳过
+                if (response.message && response.message.global
+                    && response.message.global === '此页面在另一处已修改保存，不能重复操作！')
+                {
+                    walk(templateId, status, step + 1, url, data);
+                }
+                else if (!failure[templateId]) {
+                    // 重试一次
                     walk(templateId, status, step, url, data);
                     failure[templateId] = {
                         templateId: templateId,
@@ -201,10 +205,13 @@ function initLegoStickyTool() {
 
         templateIds.forEach(function (templateId, i) {
             var apps = templateListByIndex[templateId].apps;
-            var objectVersion = templateListByIndex[templateId].objectVersion;
-            var newObjectVersion = parseInt(objectVersion, 10) + 1;
             var status = templateListByIndex[templateId].status;
             var step = 0;
+            if (status !== 'RELEASED') {
+                ++step;
+            }
+            var objectVersion = templateListByIndex[templateId].objectVersion;
+            var newObjectVersion = parseInt(objectVersion, 10) + 2 - step;
             var url = [
                 'http://lego-off.baidu.com/data/template/disable',
                 'http://lego-off.baidu.com/data/template/detail',
@@ -215,15 +222,10 @@ function initLegoStickyTool() {
                 'templateId=' + templateId + '&objectVersion=' + objectVersion,
                 'templateId=' + templateId,
                 null,
-                'apps=' + apps + '&templateId=' + templateId + '&objectVersion' + newObjectVersion
+                'apps=' + apps + '&templateId=' + templateId + '&objectVersion=' + newObjectVersion
             ];
 
-            if (status === 'RELEASED') {
-                walk(templateId, status, step, url, data);
-            }
-            else {
-                walk(templateId, status, step + 1, url, data);
-            }
+            walk(templateId, status, step, url, data);
         });
     }
 
