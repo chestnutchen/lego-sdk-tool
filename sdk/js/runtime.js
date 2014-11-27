@@ -23,7 +23,8 @@ function initLegoStickyTool() {
     var templateList = [];
     var templateListByIndex = {};
     var selectedTemplates = [];
-    var posShow = '-502px';
+    var posShowTitle = '-502px';
+    var posShow = 0;
     var posHide = '-537px';
 
     function setRight(right) {
@@ -348,27 +349,13 @@ function initLegoStickyTool() {
         tool.appendChild(toolContainer);
         document.body.appendChild(tool);
 
-        window.addEventListener('hashchange', function (e) {
-            if (!listPattern.test(e.newURL)) {
-                setRight(posHide);
-            }
-            else {
-                setRight(posShow);
-                getNewList(function () {
-                    if (templateList.length) {
-                        document.body.removeChild(tool);
-                        createUI();
-                    }
-                });
-            }
-        });
-
+        // event
         tool.addEventListener('mouseleave', function () {
-            setRight('-502px');
+            setRight(posShowTitle);
         }, false);
 
         toolTitle.addEventListener('click', function () {
-            setRight('0');
+            setRight(posShow);
         }, false);
 
         selectAllInput.addEventListener('change', function () {
@@ -391,9 +378,33 @@ function initLegoStickyTool() {
         }, false);
     }
 
+    window.addEventListener('hashchange', function (e) {
+        if (!listPattern.test(e.newURL)) {
+            setRight(posHide);
+        }
+        else {
+            getNewList(function () {
+                if (templateList.length) {
+                    var tool = document.getElementById('legoStickyTool');
+                    tool && document.body.removeChild(tool);
+                    createUI();
+                    setTimeout(function () {
+                        setRight(posShowTitle);
+                    }, 0);
+                }
+                else {
+                    setRight(posHide);
+                }
+            });
+        }
+    });
+
     getNewList(function () {
         if (templateList.length) {
             createUI();
+            setTimeout(function () {
+                setRight(posShowTitle);
+            }, 0);
         }
     });
 }
