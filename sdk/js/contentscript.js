@@ -19,7 +19,7 @@ function checkPermission(pattern) {
         pattern = new RegExp(pattern.slice(1, pattern.length - 1));
         return pattern.test(url);
     }
-    return url.indexOf('pattern') > -1;
+    return url.indexOf(pattern) > -1;
 }
 
 /**
@@ -30,12 +30,15 @@ function checkPermission(pattern) {
 function injectRuntimeJs(styleText) {
     var messageInput = $('<input type="hidden" id="legoSdkToolMessageJson">');
     messageInput.val(JSON.stringify(MESSAGE));
-    var styleInput = $('<input type="hidden" id="stickyStyleText">');
-    styleInput.val(styleText);
+    // var styleInput = $('<input type="hidden" id="stickyStyleText">');
+    // styleInput.val(styleText);
     var runtimeJs = $('<script>');
     runtimeJs.attr('src', chrome.extension.getURL('js/runtime.js'));
     $('head').append(runtimeJs);
-    $('body').append(messageInput).append(styleInput);
+    // var a = document.createElement('script');
+    // a.src = chrome.extension.getURL('js/runtime.js');
+    // document.getElementsByTagName('head')[0].appendChild(a);
+    $('body').append(messageInput);// .append(styleInput);
 }
 
 /**
@@ -120,11 +123,11 @@ function bindEvents() {
  */
 (function init() {
     $.when(
-        $.get(chrome.extension.getURL('js/message.json')),
-        $.get(chrome.extension.getURL('css/sticky.css'))
+        $.get(chrome.extension.getURL('js/message.json'))
+        // $.get(chrome.extension.getURL('css/sticky.css'))
     )
-    .done(function (message, styleText) {
-        MESSAGE = JSON.parse(message[0]);
+    .done(function (message) {
+        MESSAGE = JSON.parse(message);
         // 获取插件权限，注入runtimejs
         chrome.runtime.sendMessage({ code: MESSAGE.GET_SDK_PERMISSION_RULES }, function (response) {
             var permission = response.permission.replace(/(\r\n)|\r|\n/g, ',').split(',');
@@ -133,7 +136,8 @@ function bindEvents() {
                 if (permission[i] && checkPermission(permission[i])) {
                     chrome.runtime.sendMessage({ code: MESSAGE.RECEIVE_SDK_PERMISSION });
                     bindEvents();
-                    injectRuntimeJs(styleText[0]);
+                    injectRuntimeJs();
+                    // injectRuntimeJs(styleText[0]);
                     break;
                 }
             }

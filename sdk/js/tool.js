@@ -186,13 +186,15 @@ function Popup() {
     this._initMenu = function (datasource) {
         var tmpl = '';
         $.each(datasource, function (index, impl) {
-            var className = index === 0 ? 'class="current"' : '';
-            var img = impl.screenshot ? '<img src="' + impl.screenshot + '" />' : '';
-            tmpl += ''
-                + '<li index="' + index + '" ' + className + '>'
-                    + img
-                    + (impl.templateName || impl.mcid)
-                + '</li>';
+            if (impl.templateId) {
+                var className = index === 0 ? 'class="current"' : '';
+                var img = impl.screenshot ? '<img src="' + impl.screenshot + '" />' : '';
+                tmpl += ''
+                    + '<li index="' + index + '" ' + className + '>'
+                        + img
+                        + (impl.templateName || impl.mcid)
+                    + '</li>';
+            }
         });
         $('#menu ul').html(tmpl).parent().show();
         _bindEvents();
@@ -233,7 +235,7 @@ function SdkPopup() {
                 + '.editor-operation',
             function (e) {
                 var button = $(e.currentTarget);
-                var index = button.attr('index');
+                var index = $('.' + button.attr('class').replace(/\s/g, '.')).index(button);
                 if (button.hasClass('sdk-set-value-btn')) {
                     var valueToSet = _editorSet[index].getValue();
                     if (!valueToSet) {
@@ -295,6 +297,7 @@ function SdkPopup() {
                     );
                 }
                 else if (button.hasClass('sdk-toggle-value-and-spec')) {
+                    var index = $('.sdk-toggle-value-and-spec').index(button);
                     if (datasource[index].spec) {
                         if (button.hasClass('sdk-view-value')) {
                             me._setValue(_editorGet[index], datasource[index].value);
@@ -344,7 +347,6 @@ function SdkPopup() {
             /%legend%/,
             impl.templateName + templateIdText
         );
-        temp = temp.replace(/%index%/g, index);
 
         var down = '';
         var downClass = '';
@@ -438,7 +440,7 @@ function MaterialPopup() {
                 + '.editor-operation',
             function (e) {
                 var button = $(e.currentTarget);
-                var index = button.attr('index');
+                var index = $('.' + button.attr('class').replace(/\s/g, '.')).index(button);
                 if (button.hasClass('material-copy-value')) {
                     $('.material-raw-value:eq(' + index + ')')
                         .val(_editorGet[index].getValue())
@@ -448,6 +450,7 @@ function MaterialPopup() {
                     Helper.showTip('复制成功!');
                 }
                 else if (button.hasClass('material-toggle-value-and-spec')) {
+                    var index = $('.material-toggle-value-and-spec').index(button);
                     if (datasource[index].spec) {
                         if (button.hasClass('material-view-value')) {
                             me._setValue(_editorGet[index], JSON.stringify(datasource[index].value, null, 4));
@@ -464,6 +467,7 @@ function MaterialPopup() {
                     var type = button.attr('class').indexOf('format') !== -1
                         ? 'format'
                         : 'compact';
+                    var index = $('.material-get-' + type).index(button);
 
                     try {
                         me._beautifyJSON(_editorGet[index], type);
@@ -492,14 +496,12 @@ function MaterialPopup() {
         });
     }
 
-    function _initTemplate(template, index, length, impl) {
-        var temp = template.replace(/%index%/g, index);
-
+    function _initTemplate(template, length, impl) {
         var legend = impl.templateName
             ? impl.templateName + '<span class="text-separate">|</span>' + impl.mcid
                 + '<span class="text-separate">|</span>' + impl.templateId
             : impl.mcid + '<span class="text-separate">|</span>' + impl.templateId;
-        temp = temp.replace(
+        var temp = template.replace(
             /%legend%/,
             legend
         );
@@ -602,6 +604,10 @@ function MaterialPopup() {
 
                 $.when.apply($, deferreds).always(function () {
                     var infos = Array.prototype.slice.call(arguments, 0, deferredInfos.length);
+                    if (infos[1] === 'error') {
+                        Helper.showTip('后端服务繁忙', true);
+                        return;
+                    }
                     $.each(infos, function (index, mixRes) {
                         var response = mixRes[0];
                         var impl = datasource[index];
@@ -617,13 +623,19 @@ function MaterialPopup() {
                             impl.templateName = result.templateName;
                             impl.screenshot = result.screenshot;
                             result.spec = result.spec.replace(commentRegExp, '');
-                            impl.spec = JSON.stringify(JSON.parse(result.spec), null, 4);
+                            try {
+                                impl.spec = JSON.stringify(JSON.parse(result.spec), null, 4);
+                            }
+                            catch (err) {
+                                impl.spec = result.spec;
+                                Helper.showTip('"' + impl.templateName + '"spec中' + Helper.parseError(err.message), true);
+                            }
                             impl.ns = temp.ns;
-                            if (pos[index] && pos[index] === "119") {
+                            if (pos[index] && pos[index] === '119') {
                                 impl.priority = 1;
                             }
                         }
-                        impl.tmpl = _initTemplate(template, index, length, impl);
+                        impl.tmpl = _initTemplate(template, length, impl);
                     });
 
                     datasource.sort(function (v1, v2) {
