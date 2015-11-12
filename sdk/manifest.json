@@ -30,7 +30,7 @@
         ]
     }],
     "page_action": {
-        "default_icon": "images/icon19.png",
+        "default_icon": "images/conan-hand.png",
         "default_title": "SDK TOOL",
         "default_popup": "tool.html"
     },
