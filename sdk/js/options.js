@@ -1,13 +1,27 @@
-$(function(){
-    var permission = window.localStorage.getItem('legoSdkToolPermission') || '/https?:\\/\\/.*\\.baidu\\.com/';
-    $('#sdkPermission').val(permission);
-    $('#sdkPermissionSave').click(function () {
-        var val = $('#sdkPermission').val() || '/https?:\\/\\/.*\\.baidu\\.com/';
+var Permission = {
+    get: function () {
+        return window.localStorage.getItem('legoSdkToolPermission') || '/https?:\\/\\/.*\\.baidu\\.com/';
+    },
+    set: function (permission) {
+        window.localStorage.setItem('legoSdkToolPermission', permission);
+        $('#sdkPermission').val(permission);
+    },
+    patch: function () {
         // 挖了个坑，把http升级到两者兼容，太难看了。。。
-        if (val === '/http:\\/\\/.*\\.baidu\\.com/') {
-            val = '/https?:\\/\\/.*\\.baidu\\.com/';
+        var permission = this.get();
+        if (permission === '/http:\\/\\/.*\\.baidu\\.com/') {
+            permission = '/https?:\\/\\/.*\\.baidu\\.com/';
         }
-        window.localStorage.setItem('legoSdkToolPermission', val);
+        this.set(permission);
+    }
+};
+
+$(function () {
+    Permission.patch();
+
+    $('#sdkPermissionSave').click(function () {
+        var val = $('#sdkPermission').val();
+        Permission.set(val);
         $('#successTip').show(0).delay(2000).hide(0);
     });
 
