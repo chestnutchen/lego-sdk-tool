@@ -173,6 +173,24 @@ function Popup() {
         );
     };
 
+    this._getUbmcInfo = function (ubmcId, domain) {
+        return $.ajax(
+            'http://' + domain + '.baidu.com/data/drmc/detail',
+            {
+                dataType: 'json',
+                data: {
+                    type: 1,
+                    id: ubmcId
+                },
+                header: {
+                    'X-Request-By': 'ERApplication',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                timeout: 1500
+            }
+        );
+    };
+
     function _bindEvents() {
         $('#menu').on('click', 'li', function (e) {
             var li = $(e.currentTarget);
@@ -500,6 +518,12 @@ function MaterialPopup() {
         var legend = impl.templateName
             ? impl.templateName + '<span class="text-separate">|</span>' + impl.mcid
                 + '<span class="text-separate">|</span>' + impl.templateId
+                + '<span class="text-separate">|</span>' + (impl.isIdMixed ? '已混淆' : '未混淆')
+                + '<br>'
+                + impl.updateTime
+                + '<span class="text-separate">|</span>'
+                + '<a target="_blank" title="去素材库改spec" href="http://ecmb.bdimg.com/tam-ogel/'
+                    + impl.adJs + '">' + impl.adJs + '</a>'
             : impl.mcid + '<span class="text-separate">|</span>' + impl.templateId;
         var temp = template.replace(
             /%legend%/,
@@ -583,20 +607,29 @@ function MaterialPopup() {
                 var length = datasource.length;
                 var deferreds = [];
                 var deferredInfos = [];
+                var deferredMetas = [];
                 var deferredToDecodes = [];
                 $.each(datasource, function (index, impl) {
                     var templateId = impl.templateId;
+                    deferredMetas.push({
+                        type: 'ubmc',
+                        index: index
+                    });
                     if (templateId) {
-                        var domain = templateId > 20000000
+                        var domain = templateId > 20000000 // 这个判断也不够
                             ? 'lego-off'
                             : 'lego';
                         impl.domain = domain;
-                        deferredInfos.push(
-                            me._getNameSpaceInfo(templateId, domain)
-                        );
+                        deferredInfos.push(me._getUbmcInfo(impl.mcid, impl.domain || 'online'));
+                        deferredMetas.push({
+                            type: 'template',
+                            index: index
+                        });
+                        deferredInfos.push(me._getNameSpaceInfo(templateId, domain));
                         walkAndAdd(impl, deferredToDecodes, index);
                     }
                     else {
+                        deferredInfos.push(me._getUbmcInfo(impl.mcid, impl.domain || 'online'));
                         impl.tmpl = _initTemplate(template, index, length, impl);
                     }
                 });
@@ -610,32 +643,40 @@ function MaterialPopup() {
                     }
                     $.each(infos, function (index, mixRes) {
                         var response = mixRes[0];
-                        var impl = datasource[index];
+                        var deferredMeta = deferredMetas[index];
+                        var impl = datasource[deferredMeta.index];
                         if (response
                             && response.success !== false
                             && response.success !== 'false'
-                            && response.result
-                            && response.result.impls
                         ) {
                             var result = response.result;
-                            var temp = result.impls[0];
-                            var commentRegExp = /\/\*[\S\s]+?\*\//g;
-                            impl.templateName = result.templateName;
-                            impl.screenshot = result.screenshot;
-                            result.spec = result.spec.replace(commentRegExp, '');
-                            try {
-                                impl.spec = JSON.stringify(JSON.parse(result.spec), null, 4);
+                            if (deferredMeta.type === 'template') {
+                                var temp = result.impls[0];
+                                var commentRegExp = /\/\*[\S\s]+?\*\//g;
+                                impl.templateName = result.templateName;
+                                impl.screenshot = result.screenshot;
+                                result.spec = result.spec.replace(commentRegExp, '');
+                                try {
+                                    impl.spec = JSON.stringify(JSON.parse(result.spec), null, 4);
+                                }
+                                catch (err) {
+                                    impl.spec = result.spec;
+                                    Helper.showTip('"' + impl.templateName + '"spec中' + Helper.parseError(err.message), true);
+                                }
+                                impl.ns = temp.ns;
+                                if (pos[index] && pos[index] === '119') {
+                                    impl.priority = 1;
+                                }
+                                impl.tmpl = _initTemplate(template, length, impl);
                             }
-                            catch (err) {
-                                impl.spec = result.spec;
-                                Helper.showTip('"' + impl.templateName + '"spec中' + Helper.parseError(err.message), true);
-                            }
-                            impl.ns = temp.ns;
-                            if (pos[index] && pos[index] === '119') {
-                                impl.priority = 1;
+                            else if (deferredMeta.type === 'ubmc') {
+                                impl.updateTime = result.createTime;
+                                var adJs = /tam-ogel\/([\w-]+\.js)';/ig.exec(result.htmlData);
+                                if (adJs && adJs[1]) {
+                                    impl.adJs = adJs[1];
+                                }
                             }
                         }
-                        impl.tmpl = _initTemplate(template, length, impl);
                     });
 
                     datasource.sort(function (v1, v2) {

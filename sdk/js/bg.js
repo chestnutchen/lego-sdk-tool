@@ -5,7 +5,7 @@ function bindEvents() {
         switch (request.code) {
             case MESSAGE.GET_SDK_PERMISSION_RULES:
                 if (!window.localStorage.getItem('legoSdkToolPermission')) {
-                    window.localStorage.setItem('legoSdkToolPermission', '/http:\\/\\/.*\\.baidu\\.com/');
+                    window.localStorage.setItem('legoSdkToolPermission', '/https?:\\/\\/.*\\.baidu\\.com/');
                 }
                 sendResponse({ permission: window.localStorage.getItem('legoSdkToolPermission') });
                 break;

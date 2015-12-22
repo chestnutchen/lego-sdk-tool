@@ -43,21 +43,26 @@ window.addEventListener('message', function (e) {
                 else {
                     var materials = [];
                     for (var key in window) {
-                        var hit = /m([0-9]+)_AD_CONFIG/.exec(key);
-                        if (hit) {
-                            var mcid = hit[1];
-                            var oldmcid;
-                            var elem = document.getElementById('m' + mcid + '_canvas');
-                            if (elem) {
-                                oldmcid = elem.getAttribute('oldmcid');
+                        if (window.hasOwnProperty(key)) {
+                            var hit = /m([0-9]+)_AD_CONFIG/.exec(key);
+                            if (hit) {
+                                var mcid = hit[1];
+                                var oldmcid;
+                                var elem = document.getElementById('m' + mcid + '_canvas');
+                                if (elem) {
+                                    oldmcid = elem.getAttribute('oldmcid');
+                                }
+                                var AD_CONFIG = window[key];
+                                var RT_CONFIG = window['m' + mcid + '_RT_CONFIG'];
+                                if (document.getElementById(RT_CONFIG.id)) { // 只在当前页面的物料才显示
+                                    materials.push({
+                                        mcid: oldmcid ? oldmcid : mcid,
+                                        value: AD_CONFIG, // 之后要利用引用传递的特性，就不stringify了
+                                        templateId: RT_CONFIG.timestamp,
+                                        isIdMixed: RT_CONFIG.originId && RT_CONFIG.originId !== RT_CONFIG.id //是否开启了混淆
+                                    });
+                                }
                             }
-                            var AD_CONFIG = window[key];
-                            var RT_CONFIG = window['m' + mcid + '_RT_CONFIG'];
-                            materials.push({
-                                mcid: oldmcid ? oldmcid : mcid,
-                                value: AD_CONFIG, // 之后要利用引用传递的特性，就不stringify了
-                                templateId: RT_CONFIG.timestamp
-                            });
                         }
                     }
                     if (materials.length) {
